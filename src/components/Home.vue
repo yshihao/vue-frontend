@@ -1,152 +1,277 @@
 <template>
     <div>
         <el-container style="height: 700px; border: 1px solid #eee">
-        <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-            <el-menu :default-openeds="['1', '3']">
-            <el-submenu index="1">
-                <template slot="title"><i class="el-icon-message"></i>管理结点</template>
-                <el-menu-item-group>
-                <el-menu-item index="1-1" @click="add">新增结点</el-menu-item>
-               
-                <el-menu-item index="1-2" @click="add2">增加边</el-menu-item> 
-                <el-menu-item index="1-3">删除结点</el-menu-item>
-                <el-menu-item index="1-4">删除边</el-menu-item>
-                </el-menu-item-group>
-                
-        
-            </el-submenu>
-            <el-submenu index="2">
-                <template slot="title"><i class="el-icon-menu"></i>docker结点</template>
-                <el-menu-item-group>
-                
-                <el-menu-item index="2-1">查看</el-menu-item>
-                <el-menu-item index="2-2">查询</el-menu-item>
-                </el-menu-item-group>
-            </el-submenu>
-            <el-submenu index="3">
-                <template slot="title"><i class="el-icon-setting"></i>关于我们</template>
-                <el-menu-item-group>
-                <el-menu-item index="3-1">我们</el-menu-item>
-                <el-menu-item index="3-2">联系我们</el-menu-item>
-                </el-menu-item-group>
-            </el-submenu>
-            </el-menu>
-        </el-aside>
-        
-        <el-container>
-            <el-header style="text-align: right; font-size: 20px">
-              <el-page-header @back="goBack" content="详情页面" v-if="flag==true">
-              </el-page-header>
-              <el-page-header @back="goBack2" content="详情页面" v-else-if="flag2==true">
-              </el-page-header>
-            </el-header>
-            
-            <el-main class="mainstyle"> 
-            
-            <div v-if="flag==true">
-              <el-row>
-              <el-button type="primary" round>增加结点</el-button>
-              <el-button type="primary" round @click="ale('你已经提交增加结点请求')">提交</el-button>
-              </el-row>
-              <br/>
-              <el-card class="box-card">
-              <div slot="header" class="clearfix">
-              <span>结点图</span>
-              </div>
-           
-            </el-card> 
-            </div>
-            <div v-if="flag2==true">
-              <el-row>
-              <el-select v-model="value" placeholder="请选择结点1">
-                <el-option>
-                </el-option>
-              </el-select>
-              <el-select v-model="value" placeholder="请选择结点2">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-              <el-button type="primary" round @click="ale('你已经提交增加边请求')">提交</el-button>
-              </el-row>
-            </div>
-            </el-main>
-        </el-container>
-        </el-container>
+            <el-aside
+                width="200px"
+                style="background-color: rgb(238, 241, 246)"
+            >
+                <el-menu :default-openeds="['1', '3']">
+                    <el-menu-item index="1">
+                        <span slot="title">
+                            <i class="el-icon-message"></i>
+                            管理结点
+                        </span>
+                    </el-menu-item>
+                    <el-submenu index="2">
+                        <template slot="title">
+                            <i class="el-icon-menu"></i>
+                            docker结点
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="2-1">查看</el-menu-item>
+                            <el-menu-item index="2-2">查询</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-submenu index="3">
+                        <template slot="title">
+                            <i class="el-icon-setting"></i>
+                            关于我们
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="3-1">我们</el-menu-item>
+                            <el-menu-item index="3-2">联系我们</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                </el-menu>
+            </el-aside>
 
+            <el-container class="mainBody">
+                <el-header
+                    class="bodyHeader"
+                    style="text-align: right; font-size: 20px"
+                >
+                    <el-page-header content="详情页面"></el-page-header>
+                </el-header>
+
+                <el-main class="bodyBody">
+                    <div class="buttonGroup">
+                        <el-row>
+                            <el-button
+                                type="primary"
+                                round
+                                @click.prevent.native="
+                                    addNodeDialogVisible = true
+                                "
+                            >
+                                增加结点
+                            </el-button>
+                            <el-button
+                                type="primary"
+                                round
+                                @click.prevent.native="
+                                    addEdgeDialogVisible = true
+                                "
+                            >
+                                增加边
+                            </el-button>
+                            <el-button
+                                type="primary"
+                                round
+                                @click="handleSubmit"
+                            >
+                                提交
+                            </el-button>
+                        </el-row>
+                    </div>
+                    <el-card class="box-card" id="mountNode">
+                        <div slot="header" class="clearfix">
+                            <span>结点图</span>
+                        </div>
+                    </el-card>
+                    <el-dialog
+                        title="增加节点"
+                        :visible.sync="addNodeDialogVisible"
+                    >
+                        <el-input
+                            v-model="nodeLabel"
+                            placeholder="NodeName"
+                        ></el-input>
+                        <el-select v-model="nodeType" placeholder="NodeType">
+                            <el-option
+                                v-for="item in nodeTypes"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            ></el-option>
+                        </el-select>
+                        <span slot="footer">
+                            <el-button @click="addNodeDialogVisible = false">
+                                cancel
+                            </el-button>
+                            <el-button @click="handleAddNode">
+                                confirm
+                            </el-button>
+                        </span>
+                    </el-dialog>
+                    <el-dialog
+                        title="增加边"
+                        :visible.sync="addEdgeDialogVisible"
+                    >
+                        <div class="nodeSelectors">
+                            <el-row>
+                                <el-select
+                                    v-model="sourceNode"
+                                    placeholder="请选择结点1"
+                                    value-key="id"
+                                >
+                                    <el-option
+                                        v-for="node in availableSourceNodes"
+                                        :key="node.id"
+                                        :label="node.label"
+                                        :value="node"
+                                    ></el-option>
+                                </el-select>
+                                <el-select
+                                    v-model="targetNode"
+                                    placeholder="请选择结点2"
+                                    value-key="id"
+                                >
+                                    <el-option
+                                        v-for="node in availableTargetNodes"
+                                        :key="node.id"
+                                        :label="node.label"
+                                        :value="node"
+                                    ></el-option>
+                                </el-select>
+                            </el-row>
+                        </div>
+                        <span slot="footer" class="dilog-footer">
+                            <el-button @click="addEdgeDialogVisible = false">
+                                cancel
+                            </el-button>
+                            <el-button @click="handleAddEdge">
+                                confirm
+                            </el-button>
+                        </span>
+                    </el-dialog>
+                </el-main>
+            </el-container>
+        </el-container>
     </div>
 </template>
 
 <script>
+import data from '../pkg/data';
+import format from '../pkg/format';
+import api from '../api/api';
+
 export default {
-  data:function(){
-    return {
-      flag:false,
-      flag2:false
+    data: function() {
+        return {
+            //dialog tags
+            addNodeDialogVisible: false,
+            addEdgeDialogVisible: false,
+
+            //nodes
+            nodes: [],
+            nodeSw: 0,
+            nodeUsr: 0,
+            nodeCtr: 0,
+            nodeLabel: '',
+            nodeTypes: [
+                { value: 'sw', label: 'switch' },
+                { value: 'usr', label: 'user' },
+                { value: 'ctr', label: 'control' }
+            ],
+            nodeType: '',
+
+            //edges
+            edges: [],
+            sourceNode: {},
+            targetNode: {}
+        };
+    },
+    computed: {
+        // prevent the single-node-circle in the graph
+        availableSourceNodes() {
+            return this.nodes.filter(node => {
+                return node !== this.targetNode;
+            });
+        },
+        availableTargetNodes() {
+            return this.nodes.filter(node => {
+                return node !== this.sourceNode;
+            });
+        }
+    },
+    methods: {
+        handleAddEdge() {
+            this.sourceNode.degree++;
+            this.targetNode.degree++;
+            this.edges.push(
+                data.Edge(
+                    this.sourceNode.id,
+                    this.sourceNode.degree,
+                    this.targetNode.id,
+                    this.targetNode.degree
+                )
+            );
+            console.log(this.edges);
+            this.addEdgeDialogVisible = false;
+        },
+        handleAddNode() {
+            var node_id;
+            switch (this.nodeType) {
+                case 'sw':
+                    node_id = 'sw-' + ++this.nodeSw;
+                    break;
+                case 'usr':
+                    node_id = 'usr-' + ++this.nodeUsr;
+                    break;
+                case 'ctr':
+                    node_id = 'ctr-' + ++this.nodeCtr;
+                    break;
+            }
+            this.nodes.push(data.Node(node_id, this.nodeLabel));
+            console.log(this.nodes);
+            this.addNodeDialogVisible = false;
+        },
+        handleSubmit() {
+            var formattedFile = format.FormatYaml(this.nodes, this.edges);
+            console.log(formattedFile);
+            api.sendYaml(formattedFile);
+        }
     }
-    
-  },
-  methods:{
-    add(){
-    this.flag = !this.flag
-    this.flag2 = false
-    },
-    goBack() {
-      this.flag = !this.flag
-        console.log('go back');
-    },
-     goBack2() {
-      this.flag2 = !this.flag2
-        console.log('go back');
-    },
-    add2(){
-    this.flag2 = !this.flag2
-    this.flag = false
-    },
-    ale(v) {
-      alert(v)
-    }
-  }
-    
-}
+};
 </script>
 
-<style scoped>
-.el-header {
-    background-color: #B3C0D1;
-    color: #333;
-    line-height: 60px;
-  }
-  
-  .el-aside {
-    color: #333;
-  }
-   .text {
-    font-size: 14px;
-  }
-  .mainstyle{
-    color: black;
+<style lang="less" scoped>
+.mainBody {
+    .bodyHeader {
+        // text-align: right;
+        // font-size: 20px;
+        background-color: #b3c0d1;
+        color: #333;
+        line-height: 60px;
+    }
+    .bodyBody {
+        .buttonGroup {
+            margin-bottom: 20px;
+        }
+        .box-card {
+            // width: 1300px;
+            // height: 700px;
+        }
+    }
+}
 
-  }
-  .item {
-    margin-bottom: 18px;
-  }
+// .el-aside {
+//     color: #333;
+// }
+// .text {
+//     font-size: 14px;
+// }
 
-  .clearfix:before,
-  .clearfix:after {
+// .item {
+//     margin-bottom: 18px;
+// }
+
+.clearfix:before,
+.clearfix:after {
     display: table;
-    content: "";
-  }
-  .clearfix:after {
-    clear: both
-  }
-
-  .box-card {
-    width: 1300px;
-    height: 700px;
-
-  }
+    content: '';
+}
+.clearfix:after {
+    clear: both;
+}
 </style>
