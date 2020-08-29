@@ -73,10 +73,11 @@
                             </el-button>
                         </el-row>
                     </div>
-                    <el-card class="box-card" id="mountNode">
+                    <el-card class="box-card">
                         <div slot="header" class="clearfix">
                             <span>结点图</span>
                         </div>
+                        <Graph :nodes="nodes" :edges="edges"></Graph>
                     </el-card>
                     <el-dialog
                         title="增加节点"
@@ -154,8 +155,11 @@
 import data from '../pkg/data';
 import format from '../pkg/format';
 import api from '../api/api';
+import Graph from './Graph';
 
 export default {
+    name: 'Home',
+    components: { Graph: Graph },
     data: function() {
         return {
             //dialog tags
@@ -222,7 +226,7 @@ export default {
                     node_id = 'ctr-' + ++this.nodeCtr;
                     break;
             }
-            this.nodes.push(data.Node(node_id, this.nodeLabel));
+            this.nodes.push(data.Node(node_id, this.nodeType, this.nodeLabel));
             console.log(this.nodes);
             this.addNodeDialogVisible = false;
         },
@@ -273,5 +277,11 @@ export default {
 }
 .clearfix:after {
     clear: both;
+}
+</style>
+<style lang="less" scoped>
+#mountNode {
+    width: 800px;
+    height: 800px;
 }
 </style>

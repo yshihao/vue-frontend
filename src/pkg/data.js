@@ -1,8 +1,9 @@
 // class-node
-function Node(id, label) {
+function Node(id, type, label) {
     return {
         id: id,
         label: label,
+        type: type,
         degree: 0
     };
 }
