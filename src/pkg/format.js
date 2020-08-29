@@ -30,8 +30,8 @@ GATEWAY: "10.31.100.254:\n\
 AUX_ADDRESSES:["10.31.100.1", "10.31.100.2"]';
 
 // 勉强算个解耦，烂得一匹
-function FormatNode(node) {
-    return '"' + node.id + ':eth0' + '"';
+function FormatNode(node2) {
+    return '"' + node2.id + ':eth0' + '"';
 }
 
 function NodeToString(nodes) {
@@ -80,7 +80,6 @@ function FormatYaml(nodes, edges) {
     ret += infos;
     return ret;
 }
-
 export default { FormatYaml };
 
 // console.log(FormatYaml(nodes, edges));
