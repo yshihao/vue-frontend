@@ -200,6 +200,21 @@ export default {
     },
     methods: {
         handleAddEdge() {
+            if (!('id' in this.sourceNode) || !('id' in this.targetNode)) {
+                this.$message.error('Empty input!');
+                return;
+            }
+            this.edges.filter(edge => {
+                if (
+                    (edge.source === this.sourceNode.id &&
+                        edge.target === this.targetNode.id) ||
+                    (edge.source === this.targetNode.id &&
+                        edge.target === this.sourceNode.id)
+                ) {
+                    this.$message.error('This edge already exists!');
+                    return;
+                }
+            });
             this.sourceNode.degree++;
             this.targetNode.degree++;
             this.edges.push(
@@ -210,7 +225,7 @@ export default {
                     this.targetNode.degree
                 )
             );
-            console.log(this.edges);
+            // console.log(this.edges);
             this.addEdgeDialogVisible = false;
         },
         handleAddNode() {
@@ -227,13 +242,19 @@ export default {
                     break;
             }
             this.nodes.push(data.Node(node_id, this.nodeType, this.nodeLabel));
-            console.log(this.nodes);
+            // console.log(this.nodes);
             this.addNodeDialogVisible = false;
         },
         handleSubmit() {
-            var formattedFile = format.FormatYaml(this.nodes, this.edges);
-            console.log(formattedFile);
-            api.sendYaml(formattedFile);
+            if (this.nodes.length === 0) {
+                this.$message.error('Nothing to submit!');
+            } else {
+                var formattedFile = format.FormatYaml(this.nodes, this.edges);
+                console.log(formattedFile);
+                api.sendYaml(formattedFile).then(res => {
+                    console.log(res);
+                });
+            }
         }
     }
 };

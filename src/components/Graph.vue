@@ -24,8 +24,8 @@ export default {
                     stroke: this.colors[node.type]
                 };
             });
-            console.log(this.nodes, this.edges);
-            console.log('data complete');
+            // console.log(this.nodes, this.edges);
+            // console.log('data complete');
             return {
                 nodes: nodes,
                 edges: this.edges
@@ -37,7 +37,7 @@ export default {
     },
     watch: {
         datas() {
-            console.log('data changes');
+            // console.log('data changes');
             this.graph.changeData(this.datas);
             // this.graph.refreshLayout();
         }
@@ -70,7 +70,7 @@ export default {
                 }
             }
         });
-        console.log('graph mounted');
+        // console.log('graph mounted');
         this.graph.data(this.datas);
         this.graph.render();
     }
