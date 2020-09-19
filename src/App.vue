@@ -6,20 +6,36 @@
 
 <script>
 import Home from './components/Home.vue';
+import { mapMutations } from 'vuex';
+
 export default {
     name: 'App',
     data: function() {
         return {};
     },
-    methods: {},
+    methods: {
+        ...mapMutations(['updateHeight', 'updateWeight'])
+    },
     components: {
         Home: Home
+    },
+    mounted() {
+        window.onresize = () => {
+            this.$store.commit(
+                'updateHeight',
+                document.documentElement.clientHeight
+            );
+            this.$store.commit(
+                'updateWidth',
+                document.documentElement.clientWidth
+            );
+        };
     }
 };
 </script>
 
 <style scoped>
-p {
+/* p {
     background: red;
 }
 button {
@@ -38,5 +54,5 @@ button {
 }
 .active {
     background: yellow;
-}
+} */
 </style>

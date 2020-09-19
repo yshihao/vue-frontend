@@ -1,8 +1,11 @@
 <template>
-    <div id="mountNode"></div>
+    <div id="mountNode">
+        <!-- <button @click="graph.fitView([20])">fits</button> -->
+    </div>
 </template>
 <script>
 import G6 from '@antv/g6';
+import { mapGetters } from 'vuex';
 
 export default {
     name: 'Graph',
@@ -30,25 +33,42 @@ export default {
                 nodes: nodes,
                 edges: this.edges
             };
-            // } else {
-            //     return {};
-            // }
-        }
+        },
+        ...mapGetters(['graphHeight', 'graphWidth'])
     },
     watch: {
         datas() {
             // console.log('data changes');
             this.graph.changeData(this.datas);
             // this.graph.refreshLayout();
+            // this.graph.fitView(20);
+            setTimeout(this.adjustGraph, 300);
+        },
+        graphHeight() {
+            this.graph.changeSize(this.graphWidth, this.graphHeight);
+        },
+        graphWidth() {
+            this.graph.changeSize(this.graphWidth, this.graphHeight);
+        }
+    },
+    methods: {
+        adjustGraph() {
+            this.graph.fitView(20);
+            let zoom = this.graph.getZoom();
+            if (zoom > 3) {
+                this.graph.zoomTo(3);
+            }
+            console.log(zoom, this.graph.getZoom());
         }
     },
     props: ['nodes', 'edges'],
     mounted: function() {
         this.graph = new G6.Graph({
             container: 'mountNode',
-            width: 800,
+            width: 1000,
             height: 800,
             // fitView: true,
+            // fitViewPadding: 20,
             modes: {
                 default: ['drag-canvas', 'drag-node']
             },
@@ -73,6 +93,10 @@ export default {
         // console.log('graph mounted');
         this.graph.data(this.datas);
         this.graph.render();
+
+        // setTimeout(() => {
+        //     this.graph.changeSize(this.graphWidth, this.graphHeight);
+        // }, 100);
     }
 };
 </script>

@@ -10,7 +10,7 @@ export default {
         //console.log(data)
         //console.log(data['driver'])
         return service({
-            url: 'http://localhost:5000/api/file/send_yaml',
+            url: 'http://192.168.1.60:20000/api/file/send_yaml',
             method: 'post',
             data: {
                 keys: data

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-container style="height: 700px; border: 1px solid #eee">
+        <el-container style="border: 1px solid #eee">
             <el-aside
                 width="200px"
                 style="background-color: rgb(238, 241, 246)"
@@ -298,11 +298,5 @@ export default {
 }
 .clearfix:after {
     clear: both;
-}
-</style>
-<style lang="less" scoped>
-#mountNode {
-    width: 800px;
-    height: 800px;
 }
 </style>
