@@ -20,9 +20,9 @@ def test():
     data = request.get_json(silent=True)
     datap = data['keys']
     datap = datap.encode('utf-8')
-    file = open('file.txt','w')
-    file.write(datap)
-    #print(datap)
+    # file = open('file.txt','w')
+    # file.write(datap)
+    print(datap)
 
     if isRight:
         rsp = gen_DataPack('200')
@@ -34,5 +34,14 @@ def test():
         value = {'tag': 1, 'data': "something wrong"}
         rsp.headers['res'] = {'code':404,'data':value}
         return rsp
+
+@app.route('/api/net/list', methods=['get'])
+def network_list():
+    return {
+        "code": 200,
+        "data": ['network_2S','network_3S']
+    }
+
+
 if __name__ == '__main__':
     app.run(debug=True,port=5000)

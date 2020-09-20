@@ -1,7 +1,8 @@
 import axios from 'axios';
 //some configs
 const service = axios.create({
-    timeout: 1500000
+    timeout: 1500000,
+    baseURL: 'http://localhost:5000'
 });
 
 export default {
@@ -10,11 +11,18 @@ export default {
         //console.log(data)
         //console.log(data['driver'])
         return service({
-            url: 'http://192.168.1.60:20000/api/file/send_yaml',
+            url: '/api/file/send_yaml',
             method: 'post',
             data: {
                 keys: data
             }
+        });
+    },
+    //get network info from the server
+    getNetworkInfo() {
+        return service({
+            url: '/api/net/list',
+            method: 'get'
         });
     }
 };

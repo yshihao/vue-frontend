@@ -1,152 +1,105 @@
 <template>
     <div>
-        <el-container style="border: 1px solid #eee">
-            <el-aside
-                width="200px"
-                style="background-color: rgb(238, 241, 246)"
+        <el-container class="mainBody">
+            <el-header
+                class="bodyHeader"
+                style="text-align: right; font-size: 20px"
             >
-                <el-menu :default-openeds="['1', '3']">
-                    <el-menu-item index="1">
-                        <span slot="title">
-                            <i class="el-icon-message"></i>
-                            管理结点
-                        </span>
-                    </el-menu-item>
-                    <el-submenu index="2">
-                        <template slot="title">
-                            <i class="el-icon-menu"></i>
-                            docker结点
-                        </template>
-                        <el-menu-item-group>
-                            <el-menu-item index="2-1">查看</el-menu-item>
-                            <el-menu-item index="2-2">查询</el-menu-item>
-                        </el-menu-item-group>
-                    </el-submenu>
-                    <el-submenu index="3">
-                        <template slot="title">
-                            <i class="el-icon-setting"></i>
-                            关于我们
-                        </template>
-                        <el-menu-item-group>
-                            <el-menu-item index="3-1">我们</el-menu-item>
-                            <el-menu-item index="3-2">联系我们</el-menu-item>
-                        </el-menu-item-group>
-                    </el-submenu>
-                </el-menu>
-            </el-aside>
+                <el-page-header content="详情页面"></el-page-header>
+            </el-header>
 
-            <el-container class="mainBody">
-                <el-header
-                    class="bodyHeader"
-                    style="text-align: right; font-size: 20px"
+            <el-main class="bodyBody">
+                <div class="buttonGroup">
+                    <el-row>
+                        <el-button
+                            type="primary"
+                            round
+                            @click.prevent.native="addNodeDialogVisible = true"
+                        >
+                            增加结点
+                        </el-button>
+                        <el-button
+                            type="primary"
+                            round
+                            @click.prevent.native="addEdgeDialogVisible = true"
+                        >
+                            增加边
+                        </el-button>
+                        <el-button type="primary" round @click="handleSubmit">
+                            提交
+                        </el-button>
+                    </el-row>
+                </div>
+                <el-card class="box-card">
+                    <div slot="header" class="clearfix">
+                        <span>结点图</span>
+                    </div>
+                    <Graph :nodes="nodes" :edges="edges"></Graph>
+                </el-card>
+                <el-dialog
+                    title="增加节点"
+                    :visible.sync="addNodeDialogVisible"
                 >
-                    <el-page-header content="详情页面"></el-page-header>
-                </el-header>
-
-                <el-main class="bodyBody">
-                    <div class="buttonGroup">
+                    <el-input
+                        v-model="nodeLabel"
+                        placeholder="NodeName"
+                    ></el-input>
+                    <el-select v-model="nodeType" placeholder="NodeType">
+                        <el-option
+                            v-for="item in nodeTypes"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        ></el-option>
+                    </el-select>
+                    <span slot="footer">
+                        <el-button @click="addNodeDialogVisible = false">
+                            cancel
+                        </el-button>
+                        <el-button @click="handleAddNode">
+                            confirm
+                        </el-button>
+                    </span>
+                </el-dialog>
+                <el-dialog title="增加边" :visible.sync="addEdgeDialogVisible">
+                    <div class="nodeSelectors">
                         <el-row>
-                            <el-button
-                                type="primary"
-                                round
-                                @click.prevent.native="
-                                    addNodeDialogVisible = true
-                                "
+                            <el-select
+                                v-model="sourceNode"
+                                placeholder="请选择结点1"
+                                value-key="id"
                             >
-                                增加结点
-                            </el-button>
-                            <el-button
-                                type="primary"
-                                round
-                                @click.prevent.native="
-                                    addEdgeDialogVisible = true
-                                "
+                                <el-option
+                                    v-for="node in availableSourceNodes"
+                                    :key="node.id"
+                                    :label="node.label"
+                                    :value="node"
+                                ></el-option>
+                            </el-select>
+                            <el-select
+                                v-model="targetNode"
+                                placeholder="请选择结点2"
+                                value-key="id"
                             >
-                                增加边
-                            </el-button>
-                            <el-button
-                                type="primary"
-                                round
-                                @click="handleSubmit"
-                            >
-                                提交
-                            </el-button>
+                                <el-option
+                                    v-for="node in availableTargetNodes"
+                                    :key="node.id"
+                                    :label="node.label"
+                                    :value="node"
+                                ></el-option>
+                            </el-select>
                         </el-row>
                     </div>
-                    <el-card class="box-card">
-                        <div slot="header" class="clearfix">
-                            <span>结点图</span>
-                        </div>
-                        <Graph :nodes="nodes" :edges="edges"></Graph>
-                    </el-card>
-                    <el-dialog
-                        title="增加节点"
-                        :visible.sync="addNodeDialogVisible"
-                    >
-                        <el-input
-                            v-model="nodeLabel"
-                            placeholder="NodeName"
-                        ></el-input>
-                        <el-select v-model="nodeType" placeholder="NodeType">
-                            <el-option
-                                v-for="item in nodeTypes"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            ></el-option>
-                        </el-select>
-                        <span slot="footer">
-                            <el-button @click="addNodeDialogVisible = false">
-                                cancel
-                            </el-button>
-                            <el-button @click="handleAddNode">
-                                confirm
-                            </el-button>
-                        </span>
-                    </el-dialog>
-                    <el-dialog
-                        title="增加边"
-                        :visible.sync="addEdgeDialogVisible"
-                    >
-                        <div class="nodeSelectors">
-                            <el-row>
-                                <el-select
-                                    v-model="sourceNode"
-                                    placeholder="请选择结点1"
-                                    value-key="id"
-                                >
-                                    <el-option
-                                        v-for="node in availableSourceNodes"
-                                        :key="node.id"
-                                        :label="node.label"
-                                        :value="node"
-                                    ></el-option>
-                                </el-select>
-                                <el-select
-                                    v-model="targetNode"
-                                    placeholder="请选择结点2"
-                                    value-key="id"
-                                >
-                                    <el-option
-                                        v-for="node in availableTargetNodes"
-                                        :key="node.id"
-                                        :label="node.label"
-                                        :value="node"
-                                    ></el-option>
-                                </el-select>
-                            </el-row>
-                        </div>
-                        <span slot="footer" class="dilog-footer">
-                            <el-button @click="addEdgeDialogVisible = false">
-                                cancel
-                            </el-button>
-                            <el-button @click="handleAddEdge">
-                                confirm
-                            </el-button>
-                        </span>
-                    </el-dialog>
-                </el-main>
-            </el-container>
+                    <span slot="footer" class="dilog-footer">
+                        <el-button @click="addEdgeDialogVisible = false">
+                            cancel
+                        </el-button>
+                        <el-button @click="handleAddEdge">
+                            confirm
+                        </el-button>
+                    </span>
+                </el-dialog>
+            </el-main>
         </el-container>
     </div>
 </template>
