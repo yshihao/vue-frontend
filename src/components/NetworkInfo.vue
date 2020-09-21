@@ -9,7 +9,8 @@
                 </el-breadcrumb>
             </el-header>
             <el-main>
-                <router-view></router-view>
+                <button @click="test">click</button>
+                <router-view :netList="netList"></router-view>
             </el-main>
         </el-container>
     </div>
@@ -31,6 +32,11 @@ export default {
             this.netList.push(...res.data.data);
             // console.log(this.netList);
         });
+    },
+    methods: {
+        test() {
+            console.log(this.$route);
+        }
     }
 };
 </script>
@@ -40,9 +46,6 @@ export default {
     max-width: 800px;
     .container {
         min-height: 800px;
-        .net-item {
-            margin-top: 20px;
-        }
     }
 }
 </style>

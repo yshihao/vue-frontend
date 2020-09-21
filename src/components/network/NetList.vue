@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div>test</div>
+        <!-- <div>test</div> -->
         <el-card
             shadow="hover"
             v-for="item in netList"
@@ -18,3 +18,9 @@ export default {
     props: ['netList']
 };
 </script>
+
+<style lang="less" scoped>
+.net-item {
+    margin-top: 20px;
+}
+</style>
