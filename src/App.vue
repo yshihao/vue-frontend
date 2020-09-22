@@ -33,15 +33,6 @@
                             Dock info
                         </span>
                     </el-menu-item>
-                    <el-menu-item
-                        index="4"
-                        @click="$router.push('/DeviceInfo')"
-                    >
-                    <span slot="title">
-                    <i class="el-icon-setting"></i>
-                            Device info
-                    </span>
-                    </el-menu-item>
                     <!-- <el-submenu index="3">
                         <template slot="title">
                             <i class="el-icon-setting"></i>

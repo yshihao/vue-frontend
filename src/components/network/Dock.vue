@@ -37,7 +37,11 @@ export default{
     name: 'Dock',
     methods:{
         handleClick(row) {
-            console.log(row.name)
+           // console.log(row.name)
+            this.$router.push({name:'DeviceInfo',
+            params:{
+                id:row.id
+            }})
         }
     },
     data() {
