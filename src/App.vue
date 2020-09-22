@@ -24,6 +24,24 @@
                             network info
                         </span>
                     </el-menu-item>
+                      <el-menu-item
+                        index="3"
+                        @click="$router.push('/DockInfo')"
+                        >
+                        <span slot="title">
+                            <i class="el-icon-setting"></i>
+                            Dock info
+                        </span>
+                    </el-menu-item>
+                    <el-menu-item
+                        index="4"
+                        @click="$router.push('/DeviceInfo')"
+                    >
+                    <span slot="title">
+                    <i class="el-icon-setting"></i>
+                            Device info
+                    </span>
+                    </el-menu-item>
                     <!-- <el-submenu index="3">
                         <template slot="title">
                             <i class="el-icon-setting"></i>
@@ -37,7 +55,7 @@
                 </el-menu>
             </el-aside>
             <el-main>
-                <router-view></router-view>
+             <router-view></router-view>
             </el-main>
         </el-container>
     </div>
@@ -46,7 +64,6 @@
 <script>
 // import VueRouter from 'vue-router';
 import { mapMutations } from 'vuex';
-
 export default {
     name: 'App',
     data: function() {
@@ -55,7 +72,9 @@ export default {
     methods: {
         ...mapMutations(['updateHeight', 'updateWeight'])
     },
-    components: {},
+    //映射为update
+    components: {
+    },
     mounted() {
         window.onresize = () => {
             this.$store.commit(

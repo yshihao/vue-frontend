@@ -4,6 +4,8 @@ import Home from '../components/Home.vue';
 import NotFound from '../components/errors/NotFound';
 import NetworkInfo from '../components/NetworkInfo';
 import NetList from '../components/network/NetList';
+import Dock from '../components/network/Dock';
+import Device from '../components/network/Device';
 
 Vue.use(VueRouter);
 
@@ -22,6 +24,16 @@ const routes = [
         name: 'NetworkInfo',
         component: NetworkInfo,
         children: [{ path: '/', name: 'NetList', component: NetList }]
+    },
+    {
+        path: '/DockInfo',
+        name: 'DockInfo',
+        component: Dock
+    },
+    {
+        path: '/DeviceInfo',
+        name: 'DeviceInfo',
+        component: Device
     },
     {
         path: '*',
