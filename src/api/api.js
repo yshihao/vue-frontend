@@ -24,5 +24,14 @@ export default {
             url: '/api/net/list',
             method: 'get'
         });
+    },
+    getDockerList(netName) {
+        return service({
+            url: 'api/net/info',
+            method: 'get',
+            params: {
+                netName
+            }
+        });
     }
 };

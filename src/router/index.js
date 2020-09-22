@@ -23,18 +23,30 @@ const routes = [
         path: '/network_info',
         name: 'NetworkInfo',
         component: NetworkInfo,
-        children: [{ path: '/', name: 'NetList', component: NetList }]
+        children: [
+            { path: '/', name: 'NetList', component: NetList },
+            {
+                path: ':netName/docker_list',
+                name: 'DockerList',
+                component: Dock
+            },
+            {
+                path: '/docker_list/:netName/device/:deviceName',
+                name: 'DeviceInfo',
+                component: Device
+            }
+        ]
     },
-    {
-        path: '/DockInfo',
-        name: 'DockInfo',
-        component: Dock
-    },
-    {
-        path: '/DeviceInfo',
-        name: 'DeviceInfo',
-        component: Device
-    },
+    // {
+    //     path: '/DockInfo',
+    //     name: 'DockInfo',
+    //     component: Dock
+    // },
+    // {
+    //     path: '/DeviceInfo',
+    //     name: 'DeviceInfo',
+    //     component: Device
+    // },
     {
         path: '*',
         name: '404',

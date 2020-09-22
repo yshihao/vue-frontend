@@ -42,6 +42,13 @@ def network_list():
         "data": ['network_2S','network_3S']
     }
 
+@app.route('/api/net/info', methods=['get'])
+def docker_list():
+    print(request.args)
+    return {
+        "code": 200,
+        "data": ['test']
+    }
 
 if __name__ == '__main__':
     app.run(debug=True,port=5000)

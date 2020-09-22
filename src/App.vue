@@ -24,15 +24,6 @@
                             network info
                         </span>
                     </el-menu-item>
-                      <el-menu-item
-                        index="3"
-                        @click="$router.push('/DockInfo')"
-                        >
-                        <span slot="title">
-                            <i class="el-icon-setting"></i>
-                            Dock info
-                        </span>
-                    </el-menu-item>
                     <!-- <el-submenu index="3">
                         <template slot="title">
                             <i class="el-icon-setting"></i>
@@ -46,7 +37,7 @@
                 </el-menu>
             </el-aside>
             <el-main>
-             <router-view></router-view>
+                <router-view></router-view>
             </el-main>
         </el-container>
     </div>
@@ -64,8 +55,7 @@ export default {
         ...mapMutations(['updateHeight', 'updateWeight'])
     },
     //映射为update
-    components: {
-    },
+    components: {},
     mounted() {
         window.onresize = () => {
             this.$store.commit(

@@ -9,7 +9,7 @@
                 </el-breadcrumb>
             </el-header>
             <el-main>
-                <router-view></router-view>
+                <router-view :netList="netList"></router-view>
             </el-main>
         </el-container>
     </div>
