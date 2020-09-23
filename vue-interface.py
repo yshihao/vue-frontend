@@ -45,9 +45,51 @@ def network_list():
 @app.route('/api/net/info', methods=['get'])
 def docker_list():
     print(request.args)
+    docker = {
+            'id': 'dockerid',
+            'image': 'dockerimage',
+            'name': 'docker1',
+            'command': '/bin/bash',
+            'created': 'createdtime'
+    }
+    alldocker = [docker,docker]
     return {
         "code": 200,
-        "data": ['test']
+        "data": alldocker
+    }
+@app.route('/api/net/device/info', methods=['get'])
+def docker_device_info():
+    print(request.args)
+    device_info = {
+            'Architecture': 'x86',
+            'CPU op-mode(s)': '32 bit',
+            'Byte Order': 'little endian',
+            'CPU(s)': '20',
+            'On-line CPU(s) list': 'd',
+            'Thread(s) per core': '1',
+            'Core(s) per socket': 10,
+           'Socket(s)': 2,
+            'NUMA node(s)': 2,
+            'Vendor ID': 'dd',
+            'CPU family': 6,
+            'Model': 79,
+            'Model name': 'inter(r) Xeon(R) CPU E5-2630 v4',
+            'Stepping': 1,
+            'CPU Mhz': 1200.232,
+            'CPU max MHz': 2200.0,
+            'CPU min MHz': 1200.0,
+            'BogoMIPS': 4399.78,
+            'Virtualiztion': 'VT-x',
+            'L1d cache': '32k',
+            'L1i cache': '32k',
+            'L2 cache': '256k',
+            'L3 cache': '25600k',
+            'NUMA node0 CPU(s)': '0,2,4',
+           'NUMA node1 CPU(s)': '1,3,5'
+    }
+    return {
+        "code": 200,
+        "data": device_info
     }
 
 if __name__ == '__main__':

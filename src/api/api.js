@@ -33,5 +33,14 @@ export default {
                 netName
             }
         });
+    },
+    getDockerDevice(dockName) {
+        return service({
+            url: 'api/net/device/info',
+            method: 'get',
+            params: {
+                dockName
+            }
+        });
     }
 };

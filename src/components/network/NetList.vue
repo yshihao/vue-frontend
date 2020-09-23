@@ -22,9 +22,9 @@ export default {
     methods: {
         handleClick(e) {
             let clickNetName = e.srcElement.innerHTML.trim();
-            api.getDockerList(clickNetName).then(res => {
+            /*api.getDockerList(clickNetName).then(res => {
                 console.log(res);
-            });
+            });*/
             // e.srcElement.innerHTML is OK, too.
             // console.log(e.srcElement.firstChild.data);
             this.$router.push('/network_info/' + clickNetName + '/docker_list');

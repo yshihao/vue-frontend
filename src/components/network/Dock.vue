@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import api from '../../api/api';
 export default {
     name: 'Dock',
     methods: {
@@ -61,17 +62,17 @@ export default {
         }
     },
     data() {
-        const Docklist = {
-            id: 'dockerid',
-            image: 'dockerimage',
-            name: 'docker1',
-            command: '/bin/bash',
-            created: 'createdtime'
-        };
         return {
-            Docklists: [Docklist, Docklist]
+            Docklists: []
         };
-    }
+    },
+    created() {
+        //console.log(this.$route.params.netName)
+        api.getDockerList(this.$route.params.netName).then(res=>{
+            this.Docklists=res.data.data
+        }
+        )
+    },
 };
 </script>
 
