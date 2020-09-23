@@ -6,15 +6,13 @@
                 <br />
                 <br />
 
-                <div v-for="(value,name,index) in objects" v-bind:key="index">
+                <div v-for="(value, name, index) in objects" v-bind:key="index">
                     <p>
-                    <label>{{name}}:</label> 
-                    <input type="text" :value="value" disabled="true" />
-                    <br />
+                        <label>{{ name }}:</label>
+                        <input type="text" :value="value" disabled="true" />
+                        <br />
                     </p>
                 </div>
-                
-
             </div>
         </el-row>
     </div>
@@ -22,23 +20,19 @@
 <script>
 import api from '../../api/api';
 export default {
-   
     name: 'Ddvice',
     data() {
         return {
-            objects:{
-        }
-          
+            objects: {}
         };
     },
     created() {
-        this.id = this.$route.params.id;
-        //this.objects.arch = "fuck you"
+        this.id = this.$route.params.deviceName;
         console.log(this.id);
-        api.getDockerDevice(this.$route.params.id).then(res=>{
-            this.objects = res.data.data
-        })
-    },
+        api.getDockerDevice(this.$route.params.id).then(res => {
+            this.objects = res.data.data;
+        });
+    }
 };
 </script>
 

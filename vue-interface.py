@@ -42,6 +42,13 @@ def network_list():
         "data": ['network_2S','network_3S']
     }
 
+@app.route('/api/net/topology', methods=['get'])
+def network_topology():
+    return {
+        "code": 200,
+        "data": 'links:\n  - endpoints: ["sw-1:eth0","sw-2:eth0","sw-3:eth0","usr-1:eth0","usr-2:eth0","usr-3:eth0","ctr-1:eth0"]\n    driver: bridge\n  - endpoints: ["sw-1:eth1", "usr-1:eth1"]\n  - endpoints: ["sw-2:eth1", "usr-2:eth1"]\n  - endpoints: ["sw-3:eth1", "usr-3:eth1"]\n  - endpoints: ["sw-1:eth2", "sw-2:eth2"]\n  - endpoints: ["sw-1:eth3", "sw-3:eth2"]\n  - endpoints: ["sw-1:eth4", "ctr-1:eth1"]\nVERSION: 2\ndriver: veth\nPREFIX: 1S\nCONF_DIR: ./config\nMY_IMAGE: "tovs:1.1.4"\nPUBLISH_BASE: 9005\nSUBNET: "10.31.100.0/24"\nGATEWAY: "10.31.100.254:\nAUX_ADDRESSES:["10.31.100.1", "10.31.100.2"]'
+    }
+
 @app.route('/api/net/info', methods=['get'])
 def docker_list():
     print(request.args)

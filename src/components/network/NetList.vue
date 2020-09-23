@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div>test</div>
+        <!-- <div>test</div> -->
         <el-card
             shadow="hover"
             v-for="item in netList"

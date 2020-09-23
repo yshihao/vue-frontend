@@ -9,6 +9,11 @@ import Device from '../components/network/Device';
 
 Vue.use(VueRouter);
 
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+    return originalPush.call(this, location).catch(err => err);
+};
+
 const routes = [
     {
         path: '/',
@@ -21,7 +26,7 @@ const routes = [
     },
     {
         path: '/network_info',
-        name: 'NetworkInfo',
+        // name: 'NetworkInfo',
         component: NetworkInfo,
         children: [
             { path: '/', name: 'NetList', component: NetList },
@@ -31,7 +36,7 @@ const routes = [
                 component: Dock
             },
             {
-                path: '/docker_list/:netName/device/:deviceName',
+                path: ':netName/docker_list/device/:deviceName',
                 name: 'DeviceInfo',
                 component: Device
             }
