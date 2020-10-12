@@ -5,7 +5,7 @@ Execute Linux Remote Commands from the flask app
 
 `pip install -r requirements.txt`
  
-##start application
+## Start Application
 
 `Python main.py`
 
