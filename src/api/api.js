@@ -24,5 +24,32 @@ export default {
             url: '/api/net/list',
             method: 'get'
         });
+    },
+    getNetTopo(netName) {
+        return service({
+            url: '/api/net/topology',
+            method: 'get',
+            params: {
+                netName
+            }
+        });
+    },
+    getDockerList(netName) {
+        return service({
+            url: 'api/net/info',
+            method: 'get',
+            params: {
+                netName
+            }
+        });
+    },
+    getDockerDevice(dockName) {
+        return service({
+            url: 'api/net/device/info',
+            method: 'get',
+            params: {
+                dockName
+            }
+        });
     }
 };

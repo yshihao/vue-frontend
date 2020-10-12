@@ -46,7 +46,6 @@
 <script>
 // import VueRouter from 'vue-router';
 import { mapMutations } from 'vuex';
-
 export default {
     name: 'App',
     data: function() {
@@ -55,6 +54,7 @@ export default {
     methods: {
         ...mapMutations(['updateHeight', 'updateWeight'])
     },
+    //映射为update
     components: {},
     mounted() {
         window.onresize = () => {

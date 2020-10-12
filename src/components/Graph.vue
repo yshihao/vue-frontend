@@ -27,8 +27,8 @@ export default {
                     stroke: this.colors[node.type]
                 };
             });
-            // console.log(this.nodes, this.edges);
-            // console.log('data complete');
+            console.log(this.nodes, this.edges);
+            console.log('data complete');
             return {
                 nodes: nodes,
                 edges: this.edges
