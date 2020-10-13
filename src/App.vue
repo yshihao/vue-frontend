@@ -5,23 +5,23 @@
                 width="200px"
                 style="background-color: rgb(238, 241, 246)"
             >
-                <el-menu :default-openeds="['1']">
+                <el-menu>
                     <el-menu-item
                         index="1"
-                        @click="$router.push('/create_net')"
+                        @click="$router.push('/docker_images')"
                     >
                         <span slot="title">
                             <i class="el-icon-message"></i>
-                            create network
+                            Docker Images
                         </span>
                     </el-menu-item>
                     <el-menu-item
                         index="2"
-                        @click="$router.push('/network_info')"
+                        @click="$router.push('/data_centers')"
                     >
                         <span slot="title">
                             <i class="el-icon-menu"></i>
-                            network info
+                            Data Centers
                         </span>
                     </el-menu-item>
                     <!-- <el-submenu index="3">
@@ -36,7 +36,7 @@
                     </el-submenu> -->
                 </el-menu>
             </el-aside>
-            <el-main>
+            <el-main class="body-main">
                 <router-view></router-view>
             </el-main>
         </el-container>
@@ -71,7 +71,10 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+.body-main {
+    padding: 0;
+}
 /* p {
     background: red;
 }

@@ -1,11 +1,14 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Home from '../components/Home.vue';
-import NotFound from '../components/errors/NotFound';
-import NetworkInfo from '../components/NetworkInfo';
+import CreateNet from '../pages/CreateNet.vue';
+import NotFound from '../pages/errors/NotFound';
+import NetworkInfo from '../pages/NetworkInfo';
 import NetList from '../components/network/NetList';
 import Dock from '../components/network/Dock';
 import Device from '../components/network/Device';
+import DockerImages from '../pages/DockerImages';
+import DataCenters from '../pages/DataCenters';
+import ServerAndNets from '../components/DataCenter/ServerAndNets';
 
 Vue.use(VueRouter);
 
@@ -17,12 +20,29 @@ VueRouter.prototype.push = function push(location) {
 const routes = [
     {
         path: '/',
-        redirect: '/create_net'
+        redirect: '/docker_images'
     },
     {
         path: '/create_net',
         name: 'CreateNet',
-        component: Home
+        component: CreateNet
+    },
+    {
+        path: '/docker_images',
+        name: 'DockerImages',
+        component: DockerImages
+    },
+    {
+        path: '/data_centers',
+        name: 'DataCenters',
+        component: DataCenters,
+        children: [
+            {
+                path: ':datacenter',
+                name: 'ServerAndNets',
+                component: ServerAndNets
+            }
+        ]
     },
     {
         path: '/network_info',
@@ -42,16 +62,6 @@ const routes = [
             }
         ]
     },
-    // {
-    //     path: '/DockInfo',
-    //     name: 'DockInfo',
-    //     component: Dock
-    // },
-    // {
-    //     path: '/DeviceInfo',
-    //     name: 'DeviceInfo',
-    //     component: Device
-    // },
     {
         path: '*',
         name: '404',

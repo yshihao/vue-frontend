@@ -98,6 +98,24 @@ def docker_device_info():
         "code": 200,
         "data": device_info
     }
+# get data centers
+@app.route('/api/data_centers/info', methods=['get'])
+def data_centers_info():
+    return {
+        "code": 200,
+        "data": ['Center1','Center2','Center3']
+    }
+# get details in one particular data center
+@app.route('/api/data_centers/server_and_nets', methods=['get'])
+def server_and_nets():
+    print(request.args)
+    return {
+        "code": 200,
+        "data": {
+            "servers": ["server1","server2"],
+            "nets": ["net-2S","net-3S"]
+        }
+    }
 
 if __name__ == '__main__':
     app.run(debug=True,port=5000)
