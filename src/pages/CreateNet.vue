@@ -108,10 +108,10 @@
 import data from '../pkg/data';
 import format from '../pkg/format';
 import api from '../api/api';
-import Graph from './Graph';
+import Graph from '../components/Graph';
 
 export default {
-    name: 'Home',
+    name: 'CreateNet',
     components: { Graph: Graph },
     data: function() {
         return {

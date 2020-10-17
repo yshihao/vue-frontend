@@ -51,5 +51,22 @@ export default {
                 dockName
             }
         });
+    },
+    //get data centers list
+    getDataCenters() {
+        return service({
+            url: 'api/data_centers/info',
+            method: 'get'
+        });
+    },
+    //get details in one particular data center
+    getServerAndNets(dataCenter) {
+        return service({
+            url: 'api/data_centers/server_and_nets',
+            method: 'get',
+            params: {
+                dataCenter
+            }
+        });
     }
 };
