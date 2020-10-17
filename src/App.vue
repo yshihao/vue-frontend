@@ -1,10 +1,7 @@
 <template>
     <div id="app">
-        <el-container style="border: 1px solid #eee">
-            <el-aside
-                width="200px"
-                style="background-color: rgb(238, 241, 246)"
-            >
+        <el-container style="border: 1px solid #eee" class="body-container">
+            <el-aside width="200px" class="body-aside">
                 <el-menu>
                     <el-menu-item
                         index="1"
@@ -72,27 +69,16 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.body-main {
-    padding: 0;
+#app {
+    .body-container {
+        min-height: 800px;
+        position: relative;
+        .body-aside {
+            background-color: #dddddd;
+        }
+        .body-main {
+            padding: 0;
+        }
+    }
 }
-/* p {
-    background: red;
-}
-button {
-    background: white;
-}
-
-* {
-    margin: 0%;
-    padding: 0%;
-}
-.size {
-    font-size: 100px;
-}
-.color {
-    color: red;
-}
-.active {
-    background: yellow;
-} */
 </style>

@@ -108,14 +108,23 @@ def data_centers_info():
 # get details in one particular data center
 @app.route('/api/data_centers/server_and_nets', methods=['get'])
 def server_and_nets():
-    print(request.args)
-    return {
-        "code": 200,
-        "data": {
-            "servers": ["server1","server2"],
-            "nets": ["net-2S","net-3S"]
+    DC = request.args.get('dataCenter')
+    if DC == "Center1":
+        return {
+            "code": 200,
+            "data": {
+                "servers":["C1S1","C1S2"],
+                "nets":["C1N1","C1N2"]
+            }
         }
-    }
+    else:
+        return {
+            "code": 200,
+            "data": {
+                "servers": ["server1","server2"],
+                "nets": ["net-2S","net-3S"]
+            }
+        }
 
 if __name__ == '__main__':
     app.run(debug=True,port=5000)

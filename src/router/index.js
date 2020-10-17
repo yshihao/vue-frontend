@@ -35,32 +35,7 @@ const routes = [
     {
         path: '/data_centers',
         name: 'DataCenters',
-        component: DataCenters,
-        children: [
-            {
-                path: ':datacenter',
-                name: 'ServerAndNets',
-                component: ServerAndNets
-            }
-        ]
-    },
-    {
-        path: '/network_info',
-        // name: 'NetworkInfo',
-        component: NetworkInfo,
-        children: [
-            { path: '/', name: 'NetList', component: NetList },
-            {
-                path: ':netName/docker_list',
-                name: 'DockerList',
-                component: Dock
-            },
-            {
-                path: ':netName/docker_list/device/:deviceName',
-                name: 'DeviceInfo',
-                component: Device
-            }
-        ]
+        component: DataCenters
     },
     {
         path: '*',
