@@ -26,6 +26,7 @@
             </el-aside>
             <el-main>
                 <Net v-show="netVisible"></Net>
+                <Serverdock v-show="serverVisible"></Serverdock>
             </el-main>
         </el-container>
     </div>
@@ -34,14 +35,16 @@
 <script>
 import api from '../../api/api';
 import Net from './Net';
+import Serverdock from './Server'
 
 export default {
     name: 'ServerAndNets',
-    components: { Net },
+    components: { Net,Serverdock},
     props: ['servers', 'nets', 'dataCenterVisible'],
     data() {
         return {
-            netVisible: false
+            netVisible: false,
+            serverVisible:false
         };
     },
     computed: {
@@ -52,8 +55,10 @@ export default {
     methods: {
         handleServerClick() {
             this.netVisible = false;
+            this.serverVisible = true;
         },
         handleNetClick() {
+            this.serverVisible = false;
             this.netVisible = true;
         }
     },

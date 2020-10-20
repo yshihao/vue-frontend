@@ -45,7 +45,7 @@ export default {
     mounted() {
         api.getDataCenters()
             .then(res => {
-                // console.log(res);
+                // console.log(res);  created就给予数据
                 this.dataCenters = res.data.data;
             })
             .catch(err => {
