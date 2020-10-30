@@ -10,7 +10,7 @@
                         v-for="item in servers"
                         :key="item"
                         :index="item"
-                        @click="handleServerClick"
+                        @click="handleServerClick(item)"
                     >
                         {{ item }}
                     </el-menu-item>
@@ -18,15 +18,15 @@
                         v-for="item in nets"
                         :key="item"
                         :index="item"
-                        @click="handleNetClick"
+                        @click="handleNetClick(item)"
                     >
                         {{ item }}
                     </el-menu-item>
                 </el-menu>
             </el-aside>
             <el-main>
-                <Net v-show="netVisible"></Net>
-                <Serverdock v-show="serverVisible"></Serverdock>
+                <Net v-show="netVisible"  :Docklists="Docklists2"></Net>
+                <Serverdock v-show="serverVisible" :Docklists="Docklists"></Serverdock>
             </el-main>
         </el-container>
     </div>
@@ -44,7 +44,9 @@ export default {
     data() {
         return {
             netVisible: false,
-            serverVisible:false
+            serverVisible:false,
+            Docklists:[],
+            Docklists2:[]
         };
     },
     computed: {
@@ -53,13 +55,21 @@ export default {
         }
     },
     methods: {
-        handleServerClick() {
+        handleServerClick(item) {
             this.netVisible = false;
             this.serverVisible = true;
+            api.getDockerList(item,1,"phy").then(res => {
+            this.Docklists = res.data.data;
+           // console.log(this.Docklists)
+            });
         },
-        handleNetClick() {
+        handleNetClick(item) {
             this.serverVisible = false;
             this.netVisible = true;
+            api.getDockerList(item,1,"net").then(res => {
+            this.Docklists2 = res.data.data;
+           // console.log(this.Docklists2)
+        });
         }
     },
 

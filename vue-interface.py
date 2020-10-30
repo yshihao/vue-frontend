@@ -1,7 +1,9 @@
 #coding=utf-8
 from flask import Flask, make_response, request
 from flask_cors import CORS
+from mysql import init
 import json
+import pymysql
 app = Flask(__name__)
 #解决跨域请求
 CORS(app,supports_credential=True)
@@ -48,22 +50,95 @@ def network_topology():
         "code": 200,
         "data": 'links:\n  - endpoints: ["sw-1:eth0","sw-2:eth0","sw-3:eth0","usr-1:eth0","usr-2:eth0","usr-3:eth0","ctr-1:eth0"]\n    driver: bridge\n  - endpoints: ["sw-1:eth1", "usr-1:eth1"]\n  - endpoints: ["sw-2:eth1", "usr-2:eth1"]\n  - endpoints: ["sw-3:eth1", "usr-3:eth1"]\n  - endpoints: ["sw-1:eth2", "sw-2:eth2"]\n  - endpoints: ["sw-1:eth3", "sw-3:eth2"]\n  - endpoints: ["sw-1:eth4", "ctr-1:eth1"]\nVERSION: 2\ndriver: veth\nPREFIX: 1S\nCONF_DIR: ./config\nMY_IMAGE: "tovs:1.1.4"\nPUBLISH_BASE: 9005\nSUBNET: "10.31.100.0/24"\nGATEWAY: "10.31.100.254:\nAUX_ADDRESSES:["10.31.100.1", "10.31.100.2"]'
     }
+    
 
 @app.route('/api/net/info', methods=['get'])
 def docker_list():
-    print(request.args)
-    docker = {
-            'id': 'dockerid',
-            'image': 'dockerimage',
-            'name': 'docker1',
-            'command': '/bin/bash',
-            'created': 'createdtime'
-    }
-    alldocker = [docker,docker]
+    phy = request.args.get('netName')
+    userid = request.args.get('userid')
+    types = request.args.get('type')
+    sql1 = ""
+    print(types)
+    if types=="phy":
+        sql1 = "select dockerid,dockerimage,dockername,dockercommand,dockercreatetime from infos where uid=%s and phy=%s"
+    elif types=="net":
+        sql1 = "select dockerid,dockerimage,dockername,dockercommand,dockercreatetime from infos where uid=%s and vlanid=%s"
+    cursor = conn.cursor()
+    cursor.execute(sql1,[userid,phy])
+    results = (cursor.fetchall())
+    print(results)
+    alldocker = []
+    if results:
+        for i in range(len(results)):
+            docker = {
+            'id': str(results[i][0]),
+            'image': str(results[i][1]),
+            'name': str(results[i][2]),
+            'command': str(results[i][3]),
+            'created': str(results[i][4])
+            }
+            alldocker.append(docker)
+    cursor.close()       
     return {
         "code": 200,
         "data": alldocker
     }
+
+@app.route('/api/data_centers/info', methods=['get'])
+def data_centers_info():
+    uid = request.args.get("userid")
+    #uid =1
+    sql1 = "select dc from infos where uid=%s"%(uid)
+    cursor = conn.cursor()
+    cursor.execute(sql1)
+    results = cursor.fetchall()
+    if results:
+        results = list(results)
+        for i in range(len(results)):
+            results[i] = str(results[i][0])
+    cursor.close()
+    result = []
+    for v in results:
+        if v not in result:
+            result.append(v)
+    return {
+        "code": 200,
+        "data": result
+    }
+# get details in one particular data center
+@app.route('/api/data_centers/server_and_nets', methods=['get'])
+def server_and_nets():
+    DC = request.args.get('dataCenter')
+    uid = 1
+    sql1 = "select phy,vlanid from infos where uid=%s and dc=%s"
+    cursor = conn.cursor()
+    cursor.execute(sql1,[uid,DC])
+    results = cursor.fetchall()
+    servers = []
+    subnets = []
+    if results:
+        results = list(results)
+        for i in range(len(results)):
+            servers.append(str(results[i][0]))
+            subnets.append(str(results[i][1]))
+    cursor.close()
+    server = []
+    subnet = []
+    for v in servers:
+        if v not in server:
+            server.append(v)
+    for v in subnets:
+        if v not in subnet:
+            subnet.append(v)
+    return {
+        "code": 200,
+        "data": {
+            "servers":server,
+            "nets":subnet
+        }
+    }
+
+
 @app.route('/api/net/device/info', methods=['get'])
 def docker_device_info():
     print(request.args)
@@ -98,33 +173,7 @@ def docker_device_info():
         "code": 200,
         "data": device_info
     }
-# get data centers
-@app.route('/api/data_centers/info', methods=['get'])
-def data_centers_info():
-    return {
-        "code": 200,
-        "data": ['Center1','Center2','Center3']
-    }
-# get details in one particular data center
-@app.route('/api/data_centers/server_and_nets', methods=['get'])
-def server_and_nets():
-    DC = request.args.get('dataCenter')
-    if DC == "Center1":
-        return {
-            "code": 200,
-            "data": {
-                "servers":["C1S1","C1S2"],
-                "nets":["C1N1","C1N2"]
-            }
-        }
-    else:
-        return {
-            "code": 200,
-            "data": {
-                "servers": ["server1","server2"],
-                "nets": ["net-2S","net-3S"]
-            }
-        }
-
 if __name__ == '__main__':
+    conn = init()
     app.run(debug=True,port=5000)
+    conn.close()

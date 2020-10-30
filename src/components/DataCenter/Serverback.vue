@@ -107,9 +107,6 @@
                                 <el-input v-model="dockercommand" placeholder="请输入docker启动命令"></el-input>
                             </el-col>
                         </el-row>
-
-                        
-
                         <span slot="footer" class="dialog-footer">
                             <el-button @click="adddialogVisible = false">取 消</el-button>
                             <el-button @click="addonClick">确 定</el-button>

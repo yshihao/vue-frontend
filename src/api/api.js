@@ -34,12 +34,14 @@ export default {
             }
         });
     },
-    getDockerList(netName) {
+    getDockerList(netName,userid,type) {
         return service({
             url: 'api/net/info',
             method: 'get',
             params: {
-                netName
+                netName,
+                userid,
+                type
             }
         });
     },
@@ -48,15 +50,19 @@ export default {
             url: 'api/net/device/info',
             method: 'get',
             params: {
-                dockName
+                dockName,
+               
             }
         });
     },
     //get data centers list
-    getDataCenters() {
+    getDataCenters(userid) {
         return service({
             url: 'api/data_centers/info',
-            method: 'get'
+            method: 'get',
+            params:{
+                userid
+            }
         });
     },
     //get details in one particular data center

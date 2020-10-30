@@ -33,17 +33,18 @@ export default {
     components: {
         ServerAndNets
     },
-    data() {
+    data() { 
+        userid:1
         return {
+             userid:1,
             dataCenters: [],
-
             servers: [],
             nets: [],
             dataCenterVisible: false
         };
     },
     mounted() {
-        api.getDataCenters()
+        api.getDataCenters(this.userid)
             .then(res => {
                 // console.log(res);  created就给予数据
                 this.dataCenters = res.data.data;

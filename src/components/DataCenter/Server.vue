@@ -41,11 +41,12 @@ import api from '../../api/api';
 export default {
     name: 'ServerDock',
    // components: { Graph },
+    props:['Docklists'],
     methods: {
         handleClick(row) {
-             console.log(row.name)
+            //console.log(row.name)
             this.$router.push({
-                name: 'DeviceInfo',
+                name: 'DeviceInfo',     
                 params: {
                     deviceName: row.id
                 }
@@ -56,16 +57,10 @@ export default {
     data() {
        
         return {
-            Docklists: []
+           
         };
     },
-    created() {
-        //console.log(this.$route.params.netName)
-        api.getDockerList(this.$route.params.netName).then(res => {
-            this.Docklists = res.data.data;
-        });
-       
-    }
+    created() {}
 };
 </script>
 
