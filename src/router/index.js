@@ -9,6 +9,8 @@ import Device from '../components/network/Device';
 import DockerImages from '../pages/DockerImages';
 import DataCenters from '../pages/DataCenters';
 import ServerAndNets from '../components/DataCenter/ServerAndNets';
+import Login from '../pages/users/Login';
+import Register from '../pages/users/Register';
 
 Vue.use(VueRouter);
 
@@ -36,6 +38,16 @@ const routes = [
         path: '/data_centers',
         name: 'DataCenters',
         component: DataCenters
+    },
+    {
+        path: '/login',
+        name: 'Login',
+        component: Login
+    },
+    {
+        path: '/register',
+        name: 'register',
+        component: Register
     },
     {
         path: '*',
