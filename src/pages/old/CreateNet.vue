@@ -105,10 +105,10 @@
 </template>
 
 <script>
-import data from '../pkg/data';
-import format from '../pkg/format';
-import api from '../api/api';
-import Graph from '../components/Graph';
+import data from '@/pkg/data';
+import format from '@/pkg/format';
+import api from '@/api/api';
+import Graph from '@/components/old/Graph';
 
 export default {
     name: 'CreateNet',

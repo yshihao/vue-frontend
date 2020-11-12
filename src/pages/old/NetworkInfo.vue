@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import api from '../api/api.js';
+import api from '@/api/api.js';
 
 export default {
     name: 'NetworkInfo',

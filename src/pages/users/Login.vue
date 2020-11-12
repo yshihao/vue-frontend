@@ -12,7 +12,7 @@
                 <el-input
                     type="text"
                     v-model="loginForm.email"
-                    auto-complete="on"
+                    auto-complete="off"
                     placeholder="m.Email"
                     @keyup.enter.native="handleLogin"
                 ></el-input>
@@ -21,7 +21,7 @@
                 <el-input
                     type="password"
                     v-model="loginForm.password"
-                    auto-complete="on"
+                    auto-complete="off"
                     placeholder="m.Password"
                     @keyup.enter.native="handleLogin"
                 ></el-input>
@@ -33,7 +33,7 @@
                     @click.native.prevent="handleLogin"
                     :loading="logining"
                 >
-                    'm.GO_Login'
+                    登陆
                 </el-button>
             </el-form-item>
             <el-form-item style="width:100%;">
@@ -42,7 +42,7 @@
                     style="width:100%;"
                     @click.native.prevent="handleToRegister"
                 >
-                    Jump_to_Register
+                    注册
                 </el-button>
             </el-form-item>
         </el-form>
@@ -77,13 +77,12 @@ export default {
 
             rules: {
                 email: [
-                    { required: true, trigger: 'blur', validator: checkEmail }
+                    { required: true, trigger: 'blur'}
                 ],
                 password: [
                     {
                         required: true,
                         trigger: 'blur',
-                        validator: checkPassword
                     }
                 ]
             }
@@ -91,10 +90,18 @@ export default {
     },
     methods: {
         handleRoute(route) {
+            
             // TODO 根据用户身份选择跳转到不同的页面
         },
-        handleLogin() {},
-        handleToRegister() {}
+        handleLogin() {
+            sessionStorage.setItem("flag", 1);
+            this.$router.push({path:"/home"})
+            alert("登陆成功")
+            
+        },
+        handleToRegister() {
+            this.$router.push({path:"/register"})
+        }
     }
     // beforeRouteLeave(to, from, next){
     //   if(to.name ==='item' && ( this.isActive===false || this.isActive === undefined)){

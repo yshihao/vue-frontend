@@ -36,6 +36,31 @@ def test():
         value = {'tag': 1, 'data': "something wrong"}
         rsp.headers['res'] = {'code':404,'data':value}
         return rsp
+        
+@app.route('/api/deployment/list',methods=['get'])
+def deployment_list():
+    v={
+        'name':"nginx",
+        'ready':"1/1",
+        'uptodate':"1",
+        'available':"1",
+        'age':"26天"
+    }
+    result = []
+    result.append(v)
+    result.append(v)
+    return {
+        "code": 200,
+        "data": result
+    }
+@app.route('/api/addcontainer',methods=['post','get'])
+def add_container():
+    containername = request.args.get('containername')
+    imagename = request.args.get('imagename')
+    print(containername)
+    return {
+        "code":200
+    }
 
 @app.route('/api/net/list', methods=['get'])
 def network_list():
@@ -43,14 +68,12 @@ def network_list():
         "code": 200,
         "data": ['network_2S','network_3S']
     }
-
 @app.route('/api/net/topology', methods=['get'])
 def network_topology():
     return {
         "code": 200,
         "data": 'links:\n  - endpoints: ["sw-1:eth0","sw-2:eth0","sw-3:eth0","usr-1:eth0","usr-2:eth0","usr-3:eth0","ctr-1:eth0"]\n    driver: bridge\n  - endpoints: ["sw-1:eth1", "usr-1:eth1"]\n  - endpoints: ["sw-2:eth1", "usr-2:eth1"]\n  - endpoints: ["sw-3:eth1", "usr-3:eth1"]\n  - endpoints: ["sw-1:eth2", "sw-2:eth2"]\n  - endpoints: ["sw-1:eth3", "sw-3:eth2"]\n  - endpoints: ["sw-1:eth4", "ctr-1:eth1"]\nVERSION: 2\ndriver: veth\nPREFIX: 1S\nCONF_DIR: ./config\nMY_IMAGE: "tovs:1.1.4"\nPUBLISH_BASE: 9005\nSUBNET: "10.31.100.0/24"\nGATEWAY: "10.31.100.254:\nAUX_ADDRESSES:["10.31.100.1", "10.31.100.2"]'
     }
-    
 
 @app.route('/api/net/info', methods=['get'])
 def docker_list():
@@ -83,6 +106,7 @@ def docker_list():
         "code": 200,
         "data": alldocker
     }
+
 
 @app.route('/api/data_centers/info', methods=['get'])
 def data_centers_info():

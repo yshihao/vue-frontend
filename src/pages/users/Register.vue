@@ -96,7 +96,7 @@
                     @click.native.prevent="handleRegister"
                     :loading="registering"
                 >
-                    m.GO_Register
+                    注册
                 </el-button>
             </el-form-item>
             <el-form-item style="width:100%;">
@@ -105,7 +105,7 @@
                     style="width:100%;"
                     @click.native.prevent="handleToLogin"
                 >
-                    m.Jump_to_Login
+                    回到登陆
                 </el-button>
             </el-form-item>
         </el-form>
@@ -202,7 +202,7 @@ export default {
                 passwordAgain: ''
             },
             rules: {
-                email: [
+                /*email: [
                     { required: true, trigger: 'blur', validator: checkEmail }
                 ],
                 firstName: [
@@ -245,7 +245,7 @@ export default {
                         trigger: 'blur',
                         validator: checkPasswordAgain
                     }
-                ]
+                ]*/
             }
         };
     },
@@ -253,8 +253,12 @@ export default {
         handleRoute(route) {
             //TODO 根据用户身份选择跳转到不同页面
         },
-        handleRegister() {},
-        handleToLogin() {}
+        handleRegister() {
+
+        },
+        handleToLogin() {
+            this.$router.push({path:"/login"})
+        }
     }
 };
 </script>

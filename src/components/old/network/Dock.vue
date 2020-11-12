@@ -53,9 +53,9 @@
 </template>
 
 <script>
-import api from '../../api/api';
+import api from '@/api/api';
 import Yaml from 'js-yaml';
-import data from '../../pkg/data';
+import data from '@/pkg/data';
 import Graph from '../Graph';
 
 export default {

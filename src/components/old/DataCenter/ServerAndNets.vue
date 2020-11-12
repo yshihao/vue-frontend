@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import api from '../../api/api';
+import api from '@/api/api';
 import Net from './Net';
 import Serverdock from './Server'
 

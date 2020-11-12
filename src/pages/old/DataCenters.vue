@@ -23,10 +23,9 @@
         </el-container>
     </div>
 </template>
-
 <script>
-import api from '../api/api';
-import ServerAndNets from '../components/DataCenter/ServerAndNets';
+import api from '@/api/api';
+import ServerAndNets from '@/components/old/DataCenter/ServerAndNets';
 
 export default {
     name: 'DataCenters',

@@ -1,8 +1,9 @@
 import axios from 'axios';
+import Config from '@/config/index'
 //some configs
 const service = axios.create({
     timeout: 1500000,
-    baseURL: 'http://localhost:5000'
+    baseURL: Config.baseUrl
 });
 
 export default {
@@ -17,6 +18,22 @@ export default {
                 keys: data
             }
         });
+    },
+    getDeploymentList() {
+        return service({
+            url:'api/deployment/list',
+            method:'get'
+        });
+    },
+    addContainer(containername,imagename) {
+        return service({
+            url:'/api/addcontainer',
+            methods:'post',
+            params:{
+                containername,
+                imagename
+            }
+        })
     },
     //get network info from the server
     getNetworkInfo() {
