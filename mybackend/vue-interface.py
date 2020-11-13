@@ -4,6 +4,10 @@ from flask_cors import CORS
 from mysql import init
 import json
 import pymysql
+import k8s_connection
+import datetime
+import os
+
 app = Flask(__name__)
 #解决跨域请求
 CORS(app,supports_credential=True)
@@ -39,16 +43,18 @@ def test():
         
 @app.route('/api/deployment/list',methods=['get'])
 def deployment_list():
-    v={
-        'name':"nginx",
-        'ready':"1/1",
-        'uptodate':"1",
-        'available':"1",
-        'age':"26天"
-    }
+    deployments = k8s_connection.list_namespaced_deployment()
     result = []
-    result.append(v)
-    result.append(v)
+    today = datetime.date.today()
+    for deploy in deployments.items:
+        v = {}
+        v['name'] = deploy.metadata.name
+        v['ready'] = '{}/{}'.format(deploy.status.ready_replicas,deploy.status.replicas)
+        v['uptodate'] = '{}'.format(deploy.status.updated_replicas)
+        v['available'] = '{}'.format(deploy.status.available_replicas)
+        age = today.__sub__(deploy.metadata.creation_timestamp.date())
+        v['age'] = '{}天'.format(age.days)
+        result.append(v)
     return {
         "code": 200,
         "data": result
@@ -57,7 +63,9 @@ def deployment_list():
 def add_container():
     containername = request.args.get('containername')
     imagename = request.args.get('imagename')
-    print(containername)
+    # print(containername, imagename)
+    # print(os.getcwd())
+    k8s_connection.create_namespaced_deployment(containername,[{'image':imagename}],'default')
     return {
         "code":200
     }
@@ -198,6 +206,7 @@ def docker_device_info():
         "data": device_info
     }
 if __name__ == '__main__':
-    conn = init()
+    # conn = init()
+    k8s_connection.k8sInitial()
     app.run(debug=True,port=5000)
-    conn.close()
+    # conn.close()
