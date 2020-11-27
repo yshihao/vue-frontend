@@ -8,13 +8,24 @@
             label-width="0px"
         >
             <h3 class="title">Welcome_to_Login</h3>
+            <!--
             <el-form-item prop="email">
                 <el-input
                     type="text"
                     v-model="loginForm.email"
                     auto-complete="off"
-                    placeholder="m.Email"
-                    @keyup.enter.native="handleLogin"
+                    placeholder="请输入邮箱"
+                    
+                ></el-input>
+            </el-form-item>
+            -->
+            <el-form-item prop="username">
+                <el-input
+                    type="text"
+                    v-model="loginForm.username"
+                    auto-complete="off"
+                    placeholder="请输入用户名"
+                    
                 ></el-input>
             </el-form-item>
             <el-form-item prop="password">
@@ -22,7 +33,7 @@
                     type="password"
                     v-model="loginForm.password"
                     auto-complete="off"
-                    placeholder="m.Password"
+                    placeholder="请输入密码"
                     @keyup.enter.native="handleLogin"
                 ></el-input>
             </el-form-item>
@@ -50,6 +61,8 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
+import api from '@/api/api'
 export default {
     name: 'login',
     data() {
@@ -72,12 +85,16 @@ export default {
             logining: false,
             loginForm: {
                 email: '',
-                password: ''
+                password: '',
+                username:''
             },
 
             rules: {
                 email: [
-                    { required: true, trigger: 'blur'}
+                    { required: false, trigger: 'blur'}
+                ],
+                username:[
+                    {required:true,trigger:'blur'}
                 ],
                 password: [
                     {
@@ -89,14 +106,35 @@ export default {
         };
     },
     methods: {
+        ...mapMutations([
+            'changeLogin'
+        ]),
         handleRoute(route) {
             
             // TODO 根据用户身份选择跳转到不同的页面
         },
         handleLogin() {
-            sessionStorage.setItem("flag", 1);
-            this.$router.push({path:"/home"})
-            alert("登陆成功")
+            let user = this.loginForm.username;
+            let password = this.loginForm.password;
+            api.requestLogin(user,password).then(res => {
+                //this.tableData = res.data.data;
+                let token = res.data;
+                if(token=="wrong user"){
+                    alert("用户名错误")
+                    this.$router.push({path:"/login"})
+                }else if(token=="wrong password") {
+                    alert("密码错误")
+                    this.$router.push({path:"/login"})
+                }else {
+                    console.log(token)
+                    this.changeLogin({Authorization:token});
+                    this.$router.push({path:"/home"})
+                    alert("登陆成功")
+                }   
+            }).catch(err=>{
+                console.log("wat")
+            })
+            
             
         },
         handleToRegister() {

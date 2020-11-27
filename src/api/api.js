@@ -1,11 +1,42 @@
 import axios from 'axios';
 import Config from '@/config/index'
+import store from '../store';
+import router from '@/router/index.js';
 //some configs
+
 const service = axios.create({
     timeout: 1500000,
     baseURL: Config.baseUrl
 });
-
+service.interceptors.request.use(function (config) {
+    console.log("axios")
+    let token = localStorage.getItem('Authorization');
+    console.log(token)
+    if (token) {
+         config.headers['accessToken'] = token;
+    }
+    return config;
+}, function (error) {
+    // Do something with request error
+    return Promise.reject(error);
+});
+/*
+service.interceptors.request.use(function(response){
+    console.log("response")
+    let status = response.status;
+    console.log(status)
+    return response;
+},function(error){
+    console.log("response error")
+    if(error.response){
+        switch(error.response.status){
+            case 401:
+                store.commit('del_token')
+                router.push('/login')
+            break;
+        }
+    }
+})*/
 export default {
     //send the formatted file to the server
     sendYaml(data) {
@@ -18,6 +49,28 @@ export default {
                 keys: data
             }
         });
+    },
+    requestLogin(username,password) {
+        return service({
+            url:'/login',
+            method:'post',
+            data:{
+                username:username,
+                password:password,
+            }
+
+        })
+    },
+    registerUser(username,password){
+        return service({
+            url:'/register',
+            method:'post',
+            data:{
+                username:username,
+                password:password,
+            }
+
+        })
     },
     getDeploymentList() {
         return service({

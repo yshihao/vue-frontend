@@ -23,11 +23,6 @@ VueRouter.prototype.push = function push(location) {
 
 const routes = [
     {
-        path: '/',
-        name: 'Login',
-        component: Login
-    },
-    {
         path: '/login',
         name: 'Login',
         component: Login
@@ -90,9 +85,9 @@ const router = new VueRouter({
     mode: 'history',
     routes
 });
-
+/*
 router.beforeEach((to,from,next)=>{
-    let flag = sessionStorage.getItem('flag')
+    let flag = sessionStorage.getItem('Authorization')
 
     if(to.meta.requireAuth == true){ 
         if(!flag){                   
@@ -105,5 +100,5 @@ router.beforeEach((to,from,next)=>{
     }else{                          
         return next();
     }
-})
+})*/
 export default router;

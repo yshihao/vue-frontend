@@ -123,7 +123,12 @@ import api from '@/api/api'
       api.getDeploymentList().then(res => {
         this.tableData = res.data.data;
       }).catch(err=>{
-        console.log(err);
+        console.log(err.response.status);
+        if(err.response.status==401) {
+          this.$store.commit('del_token')
+          this.$router.push({path:'/login'})
+        }
+       // 
       })
     }
   }

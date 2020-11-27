@@ -8,17 +8,17 @@
             label-width="0px"
         >
             <h3 class="title">Welcome_to_Register</h3>
-            <!--email-->
+            <!--
             <el-form-item prop="email">
                 <el-input
                     type="text"
                     v-model="registerForm.email"
                     auto-complete="off"
                     placeholder="Email"
-                    @keyup.enter.native="handleRegister"
                 ></el-input>
             </el-form-item>
-            <!--firstName-->
+            
+            
             <el-form-item prop="firstName">
                 <el-input
                     type="text"
@@ -28,7 +28,7 @@
                     @keyup.enter.native="handleRegister"
                 ></el-input>
             </el-form-item>
-            <!--lastName-->
+           
             <el-form-item prop="lastName">
                 <el-input
                     type="text"
@@ -38,7 +38,7 @@
                     @keyup.enter.native="handleRegister"
                 ></el-input>
             </el-form-item>
-            <!--phoneNumber-->
+           
             <el-form-item prop="phoneNumber">
                 <el-input
                     type="text"
@@ -48,7 +48,7 @@
                     @keyup.enter.native="handleRegister"
                 ></el-input>
             </el-form-item>
-            <!--school/organization-->
+          
             <el-form-item prop="school">
                 <el-input
                     type="text"
@@ -58,7 +58,7 @@
                     @keyup.enter.native="handleRegister"
                 ></el-input>
             </el-form-item>
-            <!--role/title-->
+            
             <el-form-item prop="role">
                 <el-input
                     type="text"
@@ -68,14 +68,22 @@
                     @keyup.enter.native="handleRegister"
                 ></el-input>
             </el-form-item>
+            -->
             <!--password-->
+            <el-form-item prop="username">
+                <el-input
+                    type="text"
+                    v-model="registerForm.username"
+                    auto-complete="off"
+                    placeholder="username"
+                ></el-input>
+            </el-form-item>
             <el-form-item prop="password">
                 <el-input
                     type="password"
                     v-model="registerForm.password"
                     auto-complete="off"
                     placeholder="Password"
-                    @keyup.enter.native="handleRegister"
                 ></el-input>
             </el-form-item>
             <!--password again-->
@@ -113,6 +121,7 @@
 </template>
 
 <script>
+import api from '@/api/api'
 export default {
     name: 'register',
     data() {
@@ -192,12 +201,7 @@ export default {
         return {
             registering: false,
             registerForm: {
-                email: '',
-                firstName: '',
-                lastName: '',
-                phoneNumber: '',
-                school: '',
-                role: '',
+                username: '',
                 password: '',
                 passwordAgain: ''
             },
@@ -231,7 +235,7 @@ export default {
                 ],
                 role: [
                     { required: true, trigger: 'blur', validator: checkRole }
-                ],
+                ],*/
                 password: [
                     {
                         required: true,
@@ -245,7 +249,7 @@ export default {
                         trigger: 'blur',
                         validator: checkPasswordAgain
                     }
-                ]*/
+                ]
             }
         };
     },
@@ -254,6 +258,31 @@ export default {
             //TODO 根据用户身份选择跳转到不同页面
         },
         handleRegister() {
+            let formName = "registerForm";
+            this.$refs[formName].validate((valid) => {
+            if (valid) {
+                let username = this.registerForm.username;
+                let password = this.registerForm.password;
+                api.registerUser(username,password).then(res=>{
+                if(res.data=="userexist") {
+                    alert("用户名存在")
+                    this.registerForm.username=""
+                    this.registerForm.password=""
+                    this.registerForm.passwordAgain=""
+                }else {
+                    alert("注册成功，跳转到登陆界面")
+                    this.$router.push({path:"/login"})
+                }
+            }
+            ).catch(err=>{
+                console.log(err);
+            })
+            } else {
+            console.log('error submit!!');
+            return false;
+             }
+            });
+           
 
         },
         handleToLogin() {

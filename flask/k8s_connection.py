@@ -6,7 +6,9 @@ def k8sInitial():
     '''
     初始化，加载配置
     '''
-    config.load_kube_config()
+    # config.load_kube_config(config_file="./config")
+    conf = client.Configuration()
+    conf.host = 'http://192.168.1.199:40004'
 
 def list_all_namespaces():
     '''
