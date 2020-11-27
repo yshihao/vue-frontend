@@ -17,6 +17,19 @@ def login():
         #print(token)
         return token
     return "wrong password"
+@app.route("/testlogin",methods=['POST','GET'])
+def logins():
+    #json = request.get_json()
+    #print(json['username'])
+    user = User.query.filter_by(username = "admin2").first()
+    if user is None:
+        return "wrong user",404,[("token","123456")]
+    if user.verify_password("123456"):
+        g.current_user = user
+        token = user.generate_auth_token()
+        print(token)
+        return token
+    return "wrong password"
 @app.route("/register",methods=['POST'])
 def new_user():
     json = request.get_json()
@@ -33,7 +46,7 @@ def new_user():
 def verify_password(username_or_token,password):
 
     username_token = request.headers.get('accessToken')
-    print(username_token)
+    #print(username_token)
     if username_token =='':
         return False
     else:

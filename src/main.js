@@ -11,10 +11,8 @@ Vue.use(ElementUI);
 Vue.use(less);
 
 router.beforeEach((to,from,next)=>{
-    console.log("yes applied")
     if(to.meta.requireAuth==true){
         let token = localStorage.getItem('Authorization');
-        console.log(token);
         if(token){
             next()
         }else{

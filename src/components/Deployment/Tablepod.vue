@@ -124,10 +124,10 @@ import api from '@/api/api'
         this.tableData = res.data.data;
       }).catch(err=>{
         console.log(err.response.status);
-        if(err.response.status==401) {
+        /*if(err.response.status==401) {
           this.$store.commit('del_token')
-          this.$router.push({path:'/login'})
-        }
+          //this.$router.push({path:'/login'})
+        }*/
        // 
       })
     }

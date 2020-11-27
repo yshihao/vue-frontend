@@ -9,9 +9,7 @@ const service = axios.create({
     baseURL: Config.baseUrl
 });
 service.interceptors.request.use(function (config) {
-    console.log("axios")
     let token = localStorage.getItem('Authorization');
-    console.log(token)
     if (token) {
          config.headers['accessToken'] = token;
     }
@@ -20,23 +18,20 @@ service.interceptors.request.use(function (config) {
     // Do something with request error
     return Promise.reject(error);
 });
-/*
-service.interceptors.request.use(function(response){
-    console.log("response")
+service.interceptors.response.use(function(response){
     let status = response.status;
-    console.log(status)
     return response;
 },function(error){
-    console.log("response error")
     if(error.response){
         switch(error.response.status){
             case 401:
                 store.commit('del_token')
+                alert("登陆过期，重新登陆")
                 router.push('/login')
             break;
         }
     }
-})*/
+})
 export default {
     //send the formatted file to the server
     sendYaml(data) {

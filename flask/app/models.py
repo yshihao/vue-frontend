@@ -17,7 +17,7 @@ class User(db.Model):
         self.password_hash = generate_password_hash(password)
     def verify_password(self,password):
         return check_password_hash(self.password_hash,password)
-    def generate_auth_token(self, expiration = 6000):
+    def generate_auth_token(self, expiration = 600):
         s = Serializer(app.config['SECRET_KEY'], expires_in = expiration)
         return s.dumps({ 'id': self.id }) #生成token
     @staticmethod
