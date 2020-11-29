@@ -40,7 +40,7 @@ class Deployment(db.Model):
     ready = db.Column(db.String(64),nullable=False)
     uptodate = db.Column(db.String(64),nullable=False)
     available = db.Column(db.String(64),nullable=False)
-    age = db.Column(db.String(64),nullable=False)
+    creation_timestamp = db.Column(db.String(64),nullable=False)
     user_id = db.Column(db.Integer,db.ForeignKey('users.id'))
     
 

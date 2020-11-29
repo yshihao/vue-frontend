@@ -79,14 +79,15 @@ def deployment_list():
     #db.session.add(newd)
     #db.session.commit()
     result = []
-    v = {}
     alldeploy = Deployment.query.filter(Deployment.user_id==g.current_user.id).all()
     for value in alldeploy:
+        v = {}
+        print(value,value.name)
         v['name'] = value.name
         v['ready'] = value.ready
         v['uptodate'] = value.uptodate
         v['available'] = value.available
-        v['age'] = value.age
+        v['age'] = value.creation_timestamp
         result.append(v)
     return {
         "code": 200,
