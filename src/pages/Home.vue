@@ -3,15 +3,17 @@
     <div id="app">
         <el-container style="border: 1px solid #eee" class="body-container">
             <el-header style="text-align: right; font-size: 15px height:100px">
-                <el-dropdown>
-                    <i class="el-icon-setting" style="margin-right: 15px"></i>
-                    <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>查看</el-dropdown-item>
-                    <el-dropdown-item>新增</el-dropdown-item>
-                    <el-dropdown-item>删除</el-dropdown-item>
+                <el-dropdown size="medium">
+                    
+                    <span>
+                       {{user}} <i class="el-icon-setting" style="margin-right: 30px;"></i>
+                    </span>
+                    <el-dropdown-menu slot="dropdown">  
+                    <el-dropdown-item>查看个人信息</el-dropdown-item>
+                    <el-dropdown-item @click.native="lagout">退出</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
-                <span>用户名</span>
+                <span></span>
             </el-header>
             <el-container>
             <el-aside width="250px" class="body-aside">
@@ -96,13 +98,21 @@
 <script>
 // import VueRouter from 'vue-router';
 import { mapMutations } from 'vuex';
+import api from '@/api/api'
 export default {
     name: 'App',
     data: function() {
-        return {};
+        return {
+            user:''
+        };
     },
     methods: {
-        ...mapMutations(['updateHeight', 'updateWeight'])
+        ...mapMutations(['updateHeight', 'updateWeight']),
+        lagout() {
+            console.log("lagout")
+            this.$store.commit('del_token');
+            this.$router.push('/login')
+        }
     },
     //映射为update
     components: {},
@@ -116,8 +126,16 @@ export default {
                 'updateWidth',
                 document.documentElement.clientWidth
             );
-        };
-    }
+        }; 
+        api.getusername().then(res =>{
+            this.user = res.data.username;
+
+        }).catch(err=>{
+            console.log(err.response.status);
+        })
+
+    },
+
 };
 </script>
 
@@ -140,4 +158,12 @@ export default {
     color: #333;
     line-height: 60px;
   }
+.dropdown-container {
+    width: 300px;
+  }
+
+.el-icon-message {
+    position: relative;
+    top: -2px;
+}
 </style>

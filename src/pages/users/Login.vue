@@ -115,26 +115,25 @@ export default {
         },
         handleLogin() {
             let user = this.loginForm.username;
-            let password = this.loginForm.password;
-            api.requestLogin(user,password).then(res => {
-                //this.tableData = res.data.data;
-                let token = res.data;
-                if(token=="wrong user"){
-                    alert("用户名错误")
-                    this.$router.push({path:"/login"})
-                }else if(token=="wrong password") {
-                    alert("密码错误")
-                    this.$router.push({path:"/login"})
-                }else {
-                    console.log(token)
-                    this.changeLogin({Authorization:token});
-                    this.$router.push({path:"/home"})
-                    alert("登陆成功")
-                }   
-            }).catch(err=>{
-                console.log("wat")
-            })
-            
+                let password = this.loginForm.password;
+                api.requestLogin(user,password).then(res => {
+                    //this.tableData = res.data.data;
+                    let token = res.data;
+                    if(token=="wrong user"){
+                        alert("用户名错误")
+                        this.$router.push({path:"/login"})
+                    }else if(token=="wrong password") {
+                        alert("密码错误")
+                        this.$router.push({path:"/login"})
+                    }else {
+                        console.log(token)
+                        this.changeLogin({Authorization:token});
+                        this.$router.push({path:"/home"})
+                        alert("登陆成功")
+                    }   
+                }).catch(err=>{
+                    console.log("wat")
+                })
             
         },
         handleToRegister() {

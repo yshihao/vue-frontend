@@ -87,6 +87,15 @@ def add_container():
     return {
         "code":200
     }
+@app.route('/get/username',methods=['get'])
+@auth.login_required
+def get_username():
+    
+    print(g.current_user.username)
+    return {
+        "code":200,
+        "username":g.current_user.username
+    }
 @app.route('/api/login')
 @auth.login_required
 def get_auth_token():
