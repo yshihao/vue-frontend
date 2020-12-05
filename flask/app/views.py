@@ -57,23 +57,6 @@ def verify_password(username_or_token,password):
 @auth.login_required
 def deployment_list():
     '''
-    deployments = k8s_connection.list_namespaced_deployment()
-    print(deployments)
-    result = []
-    today = datetime.date.today()
-    for deploy in deployments.items:
-        v = {}
-        v['name'] = deploy.metadata.name
-        v['ready'] = '{}/{}'.format(deploy.status.ready_replicas,deploy.status.replicas)
-        v['uptodate'] = '{}'.format(deploy.status.updated_replicas)
-        v['available'] = '{}'.format(deploy.status.available_replicas)
-        age = today.__sub__(deploy.metadata.creation_timestamp.date())
-        v['age'] = '{}天'.format(age.days)
-        result.append(v)
-    return {
-        "code": 200,
-        "data": result
-    }
     '''
     #newd = Deployment(name="test4",ready="1/1",uptodate="20",available="2",age="2 month",user_id=10)
     #db.session.add(newd)

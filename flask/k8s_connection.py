@@ -27,6 +27,7 @@ def list_all_namespaces():
     res=api.list_namespace()
     print(res)
 
+
 def list_namespaced_deployment(namespace='default', watch=False):
     '''
     获得特定命名空间的所有deployment
@@ -38,14 +39,15 @@ def list_namespaced_deployment(namespace='default', watch=False):
 
     if watch:
         w = _watch.Watch()
-        for event in w.stream(api.list_namespaced_deployment,namespace=namespace):
+        for event in w.stream(api.list_namespaced_deployment, namespace=namespace):
             # print(event)
             deploy = format_deployment_event(event)
             for key,value in deploy.items():
-                print(key,value)
+                print(key, value)
     else:
         res = api.list_namespaced_deployment(namespace, pretty='true')
         print(res)
+
 
 def list_deployment_for_all_namespaces():
     '''
@@ -59,8 +61,8 @@ def list_deployment_for_all_namespaces():
         deploy = format_deployment_event(event)
         deploy_old = Deployment.query.filter(Deployment.name==deploy['name'],Deployment.user_id==deploy['user_id']).all()
         if deploy_old == []:
-            new_deployment = Deployment(name=deploy['name'],ready=deploy['ready'],
-                            uptodate=deploy['uptodate'],available=deploy['available'],
+            new_deployment = Deployment(name=deploy['name'], ready=deploy['ready'],
+                            uptodate=deploy['uptodate'], available=deploy['available'],
                             creation_timestamp=deploy['creation_timestamp'],
                             user_id=deploy['user_id'])
             db.session.add(new_deployment)
@@ -86,34 +88,135 @@ def list_deployment_for_all_namespaces():
                 db.session.commit()
             # print(2)
 
-
-def create_namespaced_deployment(name, containers, namespace, labels=[], replicas=1, volumes={}, service={}, ingress={}):
+def create_namespaced_deployment(deploy_infos, containers, volumes={}, pod_infos={}, initail_containers={}, dry_run = True):
+# def create_namespaced_deployment(name, containers, namespace, annotations={}, labels={},restartPolicy='Always',serviceAccountName='default', replicas=1, volumes={}, dry_run = True):
     '''
-    创建deployment
+    创建给定命名空间的deployment
+    deploy_infos: dict {'name':str name, 'annotations':dict annotation, 'labels':dict label, 'replicas':int replicas} deploy模块的信息
+    volumes: dict 数据集模块的信息
+    pod_infos: dict {'restartPolicy':str policy, 'serviceAccountName':str name} 容器组设定模块
+    containers: dict 太复杂了....见yaml
+    initail_containers: dict 同上
+    dry_run: bool 是否干跑,也即不执行具体内容，只是看配置是否可行
+    ret: -> dict 成功则是返回的yaml，失败则是包含错误代码与错误提示信息的dict
     '''
-    res = []
-    with open('./template.yml') as f:
+    with open('./flask/template/template.yml') as f:
         res = yaml.safe_load(f.read())
 
-    #name 字段
-    res['metadata']['name'] = name
-    res['metadata']['labels']['app'] = name
-    res['spec']['selector']['matchLabels']['app'] = name
-    res['spec']['template']['metadata']['labels']['app'] = name
+    # name 字段 
+    res['metadata']['name'] = deploy_infos['name']
 
-    # containers 字段
-    for i,container in enumerate(containers):
-        res['spec']['template']['spec']['containers'][i]['image']=container['image']
-        if 'name' in container:
-            res['spec']['template']['spec']['containers'][i]['name']=container['name']
-        else:
-            res['spec']['template']['spec']['containers'][i]['name']=container['image']
+    # labels 字段
+    res['metadata']['labels'] = deploy_infos['labels']
+    res['spec']['selector']['matchLabels'] = deploy_infos['labels']
+    res['spec']['template']['metadata']['labels'] = deploy_infos['labels']
+    # res['metadata']['labels']['app'] = name
+    # res['spec']['selector']['matchLabels']['app'] = name
+    # res['spec']['template']['metadata']['labels']['app'] = name
 
-    # print(res)
-    
+    # annotations 字段
+    res['metadata']['annotations'] = deploy_infos['annotations']
+
+    # replicas 字段
+    res['spec']['replicas'] = deploy_infos['replicas']
+
+    # volumes 字段 需要完善！
+    res['spec']['template']['spec']['volumes'] = None
+
+    # containers 字段 需要更改，将这些转移到前后段通信那里，并加上检验之类的...
+    res['spec']['template']['spec']['containers'] = containers
+    # for i,container in enumerate(containers):
+    #     res['spec']['template']['spec']['containers'][i]['name']=container['name']
+    #     res['spec']['template']['spec']['containers'][i]['image']=container['image']
+    #     res['spec']['template']['spec']['containers'][i]['imagePullPolicy'] = container['imagePullPolicy']
+
+    #     if 'workingDir' in container:
+    #         res['spec']['template']['spec']['containers'][i]['workingDir'] = container['workingDir']
+    #     if 'command' in container:
+    #         res['spec']['template']['spec']['containers'][i]['command'] = container['command']
+    #     if 'args' in container:
+    #         res['spec']['template']['spec']['containers'][i]['args'] = container['args']
+    #     if 'ports' in container:
+    #         for j, port in enumerate(container['ports']):
+    #             res['spec']['template']['spec']['containers'][i]['ports'][j]['containerPort'] = port['containerPort']
+    #             res['spec']['template']['spec']['containers'][i]['ports'][j]['hostPort'] = port['hostPort']           
+    #             res['spec']['template']['spec']['containers'][i]['ports'][j]['protocol'] = port['protocol']
+    #             if 'name' in port:
+    #                 res['spec']['template']['spec']['containers'][i]['ports'][j]['name'] = port['name']
+    #     if 'env' in container:
+    #         res['spec']['template']['spec']['containers'][i]['env'] = container['env']
+    #     if 'envFrom' in container:
+    #         res['spec']['template']['spec']['containers'][i]['envFrom'] = container['envFrom']
+    #     if 'volumeMounts' in container:
+    #         res['spec']['template']['spec']['containers'][i]['volumeMount'] = container['volumeMount']
+    #     if 'resources' in container:
+    #         res['spec']['template']['spec']['containers'][i]['resources'] = container['resources']
+
+    # restartPolicy 字段
+    res['spec']['template']['spec']['restartPolicy'] = pod_infos['restartPolicy']
+
+    # serviceAccountName 字段
+    res['spec']['template']['spec']['serviceAccountName'] = pod_infos['serviceAccountName']
+
+    # print(res)  
     api = client.AppsV1Api()
-    response = api.create_namespaced_deployment(namespace,res)
+    if dry_run:
+        response = api.create_namespaced_deployment(deploy_infos['namespace'], res, dry_run='All')
+    else:
+        response = api.create_namespaced_deployment(deploy_infos['namespace'], res)
+    # print(response)
+    return response
+
+
+def create_namespaced_service(namespace, service_info, dry_run=True):
+    '''
+    创建给定命名空间的Service
+    namespace: str 给定的命名空间
+    service_info: {'}
+    '''
+    with open('./flask/template/service.yml') as f:
+        body = yaml.safe_load(f.read())
+
+    # 基本信息
+    body['metadata']['name'] = service_info['name']
+    body['metadata']['annotations'] = service_info['annotations']
+    body['metadata']['labels'] = service_info['labels']
+    body['spec']['selector'] = service_info['labels']
+
+    # 配置信息
+    body['spec']['type'] = service_info['type']
+    body['spec']['ports'] = service_info['ports']
+
+    api = client.CoreV1Api()
+    if dry_run:
+        response = api.create_namespaced_service(namespace=namespace, body=body, dry_run="All")
+    else:
+        response = api.create_namespaced_service(namespace=namespace, body=body)
     print(response)
+    return response
+
+def create_namespaced_ingress(namespace, ingress_info,dry_run=True):
+    '''
+    '''
+    with open('./flask/template/ingress.yml') as f:
+        body = yaml.safe_load(f.read())
+
+    # 基本信息
+    body['metadata']['name'] = ingress_info['name']
+    body['metadata']['annotations'] = ingress_info['annotations']
+    body['metadata']['labels'] = ingress_info['labels']
+
+    # 配置信息
+    body['spec']['rules'] = ingress_info['rules']
+    body['spec']['tls'] = ingress_info['tls']
+
+    api = client.NetworkingApi()
+    if dry_run:
+        response = api.create_namespaced_ingress(namespace=namespace,body=body,dry_run='All')
+    else:
+        response = api.create_namespaced_ingress(namespace=namespace,body=body)
+    print(response)
+    return response
 
 def delete_namespaced_deployment(name, namespace):
     '''
@@ -124,7 +227,7 @@ def delete_namespaced_deployment(name, namespace):
     '''
     api = client.AppsV1Api()
     try:
-        res = api.delete_namespaced_deployment(name,namespace)
+        res = api.delete_namespaced_deployment(name, namespace)
         print(res)
         if(res['status']=='Success'):
             return 0
@@ -133,6 +236,7 @@ def delete_namespaced_deployment(name, namespace):
     except client.exceptions.ApiException as err :
         print(err.reason)
         return 1
+
 
 def format_deployment_event(event):
     '''
@@ -158,12 +262,10 @@ def format_deployment_event(event):
     return deploy
 
 
-
-
 if __name__ == '__main__':
     k8sInitial()
     # list_all_namespaces()
     # list_namespaced_deployment(watch=True)
-    list_deployment_for_all_namespaces()
-    # create_namespaced_deployment('test1',[{'image':'nginx'}],'default')
+    # list_deployment_for_all_namespaces()
+    # create_namespaced_deployment('test1',[{'image':'nginx', 'name':'test-pod', "imagePullPolicy":'Always'}],'default',labels={'label1':'124'})
     # print(delete_namespaced_deployment('test1','default'))
