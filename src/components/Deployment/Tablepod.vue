@@ -13,10 +13,10 @@
             <!--<span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span> -->
           </el-option>
          </el-select>
-         <el-input placeholder="输入查询" style="width: 200px;" class="filter-item" v-model="inputValue" @keyup.enter.native="handleFilter"/>
-	     	 <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="onSubmit">查询</el-button>  	 	
+         <el-input placeholder="输入查询" style="width: 200px;" class="filter-item" v-model="inputValue" @keyup.enter.native="handleFilter" @input="handlesearch"/>
+	     	 <!--<el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handlesearch">查询</el-button>  	 -->	
      	 </div>
-     	 <div  style="display: inline-block;float:right;">
+     	 <div  class="btn_box_wapper">
 	       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">伸缩</el-button>
 	     	 <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-delete" >YAML</el-button>
 	     	 <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-arrow-right" @click="$router.push({path:'/home/createdeploy'})" >创建 Deployment</el-button>
@@ -24,7 +24,7 @@
      </div>
      <div style="top:10px;position:relative">
       <el-table :header-cell-style="{background:'#eef1f6',color:'#606266'}"
-      :data="tableData"
+      :data="tmpData"
       border=true
       max-height="500"
       max-width="250"
@@ -84,23 +84,23 @@ import api from '@/api/api'
     data() {
       return {
         tableData: [],
+        tmpData:[],
          options: [{
-          value: '选项1',
+          value: 1,
           label: 'Name'
         }, {
-          value: '选项2',
+          value: 2,
           label: 'Ready'
         }, {
-          value: '选项3',
+          value: 3,
           label: 'Up to Date'
         }, {
-          value: '选项4',
+          value: 4,
           label: 'Available'
         }, {
-          value: '选项5',
+          value:  5,
           label: 'Age'
         }],
-        search: '',
         selectValue:'',
         inputValue:'',
       }
@@ -108,6 +108,55 @@ import api from '@/api/api'
     methods: {
       handleEdit(index, row) {
         console.log(index, row);
+      },
+      handlesearch() {
+        if(this.selectValue=="") {
+          this.inputValue="";
+          alert("请选择查询字段");
+          return;
+        }
+        if(this.inputValue=="") {
+            this.tmpData = this.tableData;
+            return;
+        } 
+        this.tmpData = [];
+        switch(this.selectValue){
+          case 1:
+             this.tableData.filter(item =>{
+              if(item.name.includes(this.inputValue)) {
+                  this.tmpData.push(item);
+              }
+              })
+            break;
+          case 2:
+             this.tableData.filter(item =>{
+              if(item.ready.includes(this.inputValue)) {
+                  this.tmpData.push(item);
+              }
+              })
+            break;
+          case 3:
+             this.tableData.filter(item =>{
+              if(item.uptodate.includes(this.inputValue)) {
+                  this.tmpData.push(item);
+              }
+              })
+            break;
+          case 4:
+             this.tableData.filter(item =>{
+              if(item.available.includes(this.inputValue)) {
+                  this.tmpData.push(item);
+              }
+              })
+            break;
+          default:
+            this.tableData.filter(item =>{
+              if(item.age.includes(this.inputValue)) {
+                  this.tmpData.push(item);
+              }
+              })
+        }
+       
       },
       handleDelete(index, row) {
         console.log(index, row);
@@ -122,6 +171,7 @@ import api from '@/api/api'
     mounted(){
       api.getDeploymentList().then(res => {
         this.tableData = res.data.data;
+        this.tmpData = res.data.data;
       }).catch(err=>{
         console.log(err.response.status);
         /*if(err.response.status==401) {
@@ -133,3 +183,15 @@ import api from '@/api/api'
     }
   }
 </script>
+
+<style lang="less">
+.filter-container {
+  position: relative;
+}
+
+.btn_box_wapper {
+  display: inline-block;
+  position: absolute;
+  right: 0;
+}
+</style>

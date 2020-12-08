@@ -117,6 +117,15 @@ def confirm_deployment():
     data = None # 加载临时文件
     res = k8s_connection.create_namespaced_deployment(data.deploy_infos,data.containers,data.volumes,data.pod_infos,data.initail_containers)
 
+@app.route('/get/username',methods=['get'])
+@auth.login_required
+def get_username():
+    
+    print(g.current_user.username)
+    return {
+        "code":200,
+        "username":g.current_user.username
+    }
 @app.route('/api/login')
 @auth.login_required
 def get_auth_token():

@@ -56,6 +56,12 @@ export default {
 
         })
     },
+    getusername() {
+        return service({
+            url:'/get/username',
+            method:'get'
+        })
+    },
     registerUser(username,password){
         return service({
             url:'/register',
@@ -116,7 +122,6 @@ export default {
             method: 'get',
             params: {
                 dockName,
-               
             }
         });
     },
