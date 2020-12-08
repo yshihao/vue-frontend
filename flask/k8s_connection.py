@@ -88,10 +88,11 @@ def list_deployment_for_all_namespaces():
                 db.session.commit()
             # print(2)
 
-def create_namespaced_deployment(deploy_infos, containers, volumes={}, pod_infos={}, initail_containers={}, dry_run = True):
+def create_namespaced_deployment(namespace,deploy_infos, containers, volumes={}, pod_infos={}, initail_containers={}, dry_run = True):
 # def create_namespaced_deployment(name, containers, namespace, annotations={}, labels={},restartPolicy='Always',serviceAccountName='default', replicas=1, volumes={}, dry_run = True):
     '''
     创建给定命名空间的deployment
+    namespace: str deployment所属的ns
     deploy_infos: dict {'name':str name, 'annotations':dict annotation, 'labels':dict label, 'replicas':int replicas} deploy模块的信息
     volumes: dict 数据集模块的信息
     pod_infos: dict {'restartPolicy':str policy, 'serviceAccountName':str name} 容器组设定模块
@@ -123,8 +124,9 @@ def create_namespaced_deployment(deploy_infos, containers, volumes={}, pod_infos
     # volumes 字段 需要完善！
     res['spec']['template']['spec']['volumes'] = None
 
-    # containers 字段 需要更改，将这些转移到前后段通信那里，并加上检验之类的...
+    # containers 字段 
     res['spec']['template']['spec']['containers'] = containers
+    res['spec']['template']['spec']['initContainers'] = initail_containers
     # for i,container in enumerate(containers):
     #     res['spec']['template']['spec']['containers'][i]['name']=container['name']
     #     res['spec']['template']['spec']['containers'][i]['image']=container['image']
@@ -161,9 +163,9 @@ def create_namespaced_deployment(deploy_infos, containers, volumes={}, pod_infos
     # print(res)  
     api = client.AppsV1Api()
     if dry_run:
-        response = api.create_namespaced_deployment(deploy_infos['namespace'], res, dry_run='All')
+        response = api.create_namespaced_deployment(namespace, res, dry_run='All')
     else:
-        response = api.create_namespaced_deployment(deploy_infos['namespace'], res)
+        response = api.create_namespaced_deployment(namespace, res)
     # print(response)
     return response
 
@@ -210,7 +212,7 @@ def create_namespaced_ingress(namespace, ingress_info,dry_run=True):
     body['spec']['rules'] = ingress_info['rules']
     body['spec']['tls'] = ingress_info['tls']
 
-    api = client.NetworkingApi()
+    api = client.NetworkingV1beta1Api()
     if dry_run:
         response = api.create_namespaced_ingress(namespace=namespace,body=body,dry_run='All')
     else:

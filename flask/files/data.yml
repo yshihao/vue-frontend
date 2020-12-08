@@ -1,0 +1,86 @@
+data:
+  namespace: str # 用户对应的namespace,可以考虑为其user_id
+  deploy_infos:
+    name: str
+    kind: str # 事实上是枚举 {'deployment','statefulSet','daemonSet'}
+    labels:
+      key1: value1 
+      key2: value2 # 其中 key & value 都是 str
+    annotations:
+      key1: value1 # 可以在这里仿照kuboard添加关于是否有service，是否有ingress的信息
+      key2: value2 # 其中 key & value 都是 str
+    replicas: int
+
+  volumes:
+    name: str
+    kind: str # 枚举{'NFS','储存卷声明','hostPath','secret','configMap'}
+    # 五选一
+    # NFS
+    NfsServer: str # ip or 域名
+    NfsPath: str # 路径 '/../../..'
+    # 储存卷声明
+    Pvc: # 参考文档，指向集群中的PVC资源
+    # hostPath
+    path: str # 节点路径
+    type: str # 枚举
+    # secret 
+    secret: str # 指向集群中的secret，名称匹配
+    key: str # 该secret的key，名称匹配
+    path: str # 路径
+    # configMap
+    configMap: str # 指向集群中的configMap，名称匹配
+    key: str # 该configMap的key，名称匹配
+    path: str # 路径     
+
+  pod_infos:
+    restartPolicy: str # 枚举 {'Always','OnFailure','Never'}
+    serviceAccount: str # 指向集群中的 ServiceAccount，名称匹配
+
+  containers: # 由于实现是整个containers一起赋值，所以这里不能有多余的字段
+    - name: str 
+      image: str 
+      imagePullPolicy: str # 枚举 {'Always','IfNotPresent','Never'}
+      workingDir: str # 路径
+      command:
+        - str 
+      args:
+        - str
+      ports:
+        - containerPort: int
+          hostPort: int
+          protocol: str # 枚举 {'TCP','UDP','SCTP'}
+          name: str
+      env:
+        - name: str
+          # 二选一
+          value: str # 类型里的值
+          valueFrom: # 类型里的后四种,复杂的数据结构，根据不同的类型有不同的属性,应该都是名称匹配的
+      envFrom:
+        - prefix: str
+          configMapRef:
+          secretRef: # 这俩就是上面说的复杂的数据结构中的两种....
+      volumeMount:
+        - mountPath: str # 路径
+          mountPropagation: str # 枚举{'None','HostToContainer','Bidirectional'}
+          name: str # 匹配集群中的数据卷，具体来说就是上面的hostPath
+          readOnly: bool
+          subPath/subPathExpr: str # 这个感觉使用subPathExpr可以代替两个的作用(大概吧)
+      resources:
+        limits: 
+          cpu: str
+          memory: str
+        requests:
+          cpu: str
+          memory: str
+
+  service_infos:
+    type: str # 枚举{'ClusterIP','NodePort'}
+    ports:
+      - name: str # 端口名称，应该是随机生成的，用户也可以改
+        nodePort: int # 容器端口
+        port: int # 服务端口
+        protocol: str # 枚举 {'TCP'，'UDP'}
+        targetPort: int # 集群端口，只有NodePort有。如果用户不填，最好没有这个字段
+    
+  ingress_infos: # 待续
+

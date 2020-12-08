@@ -76,17 +76,47 @@ def deployment_list():
         "code": 200,
         "data": result
     }
-@app.route('/api/addcontainer',methods=['post','get'])
+@app.route('/api/addDeployment',methods=['post','get'])
 @auth.login_required
-def add_container():
-    containername = request.args.get('containername')
-    imagename = request.args.get('imagename')
-    print(g.current_user.username)
-    # print(os.getcwd())
-    #k8s_connection.create_namespaced_deployment(containername,[{'image':imagename}],'default')
+def add_deployment():
+    '''
+    处理前端发来的创建deployment请求，甚至包括service和ingress
+    '''
+    data = request.get_json(force=True)
+
+    # 注解与标签处理
+    w_name = data['deploy_infos']['name']
+    data['deploy_infos']['annotations']['k8s.webserver/workload'] = w_name
+    data['deploy_infos']['labels']['k8s.webserver/workload'] = w_name
+    data['service_infos']['annotations']['k8s.webserver/workload'] = w_name
+    data['service_infos']['labels']['k8s.webserver/workload'] = w_name
+    data['ingress_infos']['annotations']['k8s.webserver/workload'] = w_name
+    data['ingress_infos']['labels']['k8s.webserver/workload'] = w_name
+   
+    # dry_run 并得到结果（需要格式化，但还没测试）
+    deploy_res = k8s_connection.create_namespaced_deployment(data['namespace'],data['deploy_infos'],data['containers'],data['volumes'],data['pod_infos'],data['initial_contianers'],True)
+    service_res = k8s_connection.create_namespaced_service(data['namespace'],data['service_infos'],True)
+    ingress_res = k8s_connection.create_namespaced_ingress(data['namespace'],data['ingress_infos'],True)
+
+    # 考虑临时文件储存一下这个配置，给个有效时间
+
     return {
-        "code":200
+        "code":200,
+        "data":{
+            "deploy_res": deploy_res,
+            "service_res": service_res,
+            "ingress_res": ingress_res
+        }
     }
+
+@app.route('/api/confirmDeployment',methods=['post','get'])
+@auth.login_required
+def confirm_deployment():
+    '''
+    '''
+    data = None # 加载临时文件
+    res = k8s_connection.create_namespaced_deployment(data.deploy_infos,data.containers,data.volumes,data.pod_infos,data.initail_containers)
+
 @app.route('/api/login')
 @auth.login_required
 def get_auth_token():
