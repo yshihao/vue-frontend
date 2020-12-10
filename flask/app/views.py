@@ -2,6 +2,7 @@ from app import app,db,auth
 from flask import json,jsonify,request,g
 from app.models import *
 import k8s_connection 
+import datetime
 
 
 @app.route("/login",methods=['POST','GET'])
@@ -84,28 +85,68 @@ def add_deployment():
     '''
     data = request.get_json(force=True)
 
+    # test
+    data['namespace'] = 0
+    data['fileId'] = 1
+
     # 注解与标签处理
     w_name = data['deploy_infos']['name']
     data['deploy_infos']['annotations']['k8s.webserver/workload'] = w_name
-    data['deploy_infos']['labels']['k8s.webserver/workload'] = w_name
-    data['service_infos']['annotations']['k8s.webserver/workload'] = w_name
-    data['service_infos']['labels']['k8s.webserver/workload'] = w_name
-    data['ingress_infos']['annotations']['k8s.webserver/workload'] = w_name
-    data['ingress_infos']['labels']['k8s.webserver/workload'] = w_name
+    try:
+        data['deploy_infos']['labels']['k8s.webserver/name'] = w_name
+    except TypeError:
+        data['deploy_infos']['labels'] = {}
+        data['deploy_infos']['labels']['k8s.webserver/name'] = w_name
+    try:
+        data['service_infos']['annotations']['k8s.webserver/workload'] = w_name
+    except KeyError:
+        data['service_infos']['annotations'] = {}
+        data['service_infos']['annotations']['k8s.webserver/workload'] = w_name
+    try:
+        data['service_infos']['labels']['k8s.webserver/name'] = w_name
+    except KeyError:
+        data['service_infos']['labels'] = {}
+        data['service_infos']['labels']['k8s.webserver/name'] = w_name
+    # data['ingress_infos']['annotations']['k8s.webserver/workload'] = w_name
+    # data['ingress_infos']['labels']['k8s.webserver/workload'] = w_name
    
-    # dry_run 并得到结果（需要格式化，但还没测试）
-    deploy_res = k8s_connection.create_namespaced_deployment(data['namespace'],data['deploy_infos'],data['containers'],data['volumes'],data['pod_infos'],data['initial_contianers'],True)
-    service_res = k8s_connection.create_namespaced_service(data['namespace'],data['service_infos'],True)
-    ingress_res = k8s_connection.create_namespaced_ingress(data['namespace'],data['ingress_infos'],True)
+    # 名称处理
+    data['service_infos']['name'] = w_name
+    # data['ingress_infos']['name'] = w_name
+
+    # # dry_run 并得到结果（需要格式化，但还没测试）
+    try:
+        deploy_res = k8s_connection.create_namespaced_deployment(data['namespace'],data['deploy_infos'],data['containers'],data['volumes'],data['pod_infos'],data['initial_contianers'],True)
+        deploy_succeed = True
+    except k8s_connection.client.exceptions.ApiException as err:
+        deploy_res = k8s_connection.format_create_failure(err)
+        deploy_succeed = False
+    try:
+        service_res = k8s_connection.create_namespaced_service(data['namespace'],data['service_infos'],True)
+        service_succeed = True
+    except k8s_connection.client.exceptions.ApiException as err:
+        service_res = k8s_connection.format_create_failure(err)
+        service_succeed = False
+    # ingress_res = k8s_connection.create_namespaced_ingress(data['namespace'],data['ingress_infos'],True)
 
     # 考虑临时文件储存一下这个配置，给个有效时间
+    path = "/home/werthy/TempFiles/"+data['namespace']+'_'+data['fileId']+'.yml'
+    with open(path,'w+') as f:
+        yaml.safe_dump(data,f)
+    new_deployment_creation = DeploymentCreation(id=data['file'],path=path,
+                                                creation_timestamp=datetime.datetime.now().timestamp(),
+                                                user_id=data['namespace'])
+    db.session.add(new_deployment_creation)
+    db.session.commit()
 
     return {
         "code":200,
         "data":{
+            "deploy_succeed": deploy_succeed,
             "deploy_res": deploy_res,
+            "service_succeed": service_succeed,
             "service_res": service_res,
-            "ingress_res": ingress_res
+            # "ingress_res": ingress_res
         }
     }
 
@@ -113,9 +154,23 @@ def add_deployment():
 @auth.login_required
 def confirm_deployment():
     '''
+    读取暂存的临时文件，校验其时间，如果在有效期内，则发往k8s执行.
     '''
-    data = None # 加载临时文件
-    res = k8s_connection.create_namespaced_deployment(data.deploy_infos,data.containers,data.volumes,data.pod_infos,data.initail_containers)
+    path = DeploymentCreation.query.filter(DeploymentCreation.id==_data['fileId'],DeploymentCreation.user_id==_data['namespace']).first().path
+    with open(path) as f:
+        data = yaml.safe_load(f.read())
+
+    deploy_res = k8s_connection.create_namespaced_deployment(data['namespace'],data['deploy_infos'],data['containers'],data['volumes'],data['pod_infos'],data['initial_contianers'],False)
+    service_res = k8s_connection.create_namespaced_service(data['namespace'],data['service_infos'],False)
+    # ingress_res = k8s_connection.create_namespaced_ingress(data['namespace'],data['ingress_infos'],False)
+    return {
+        "code":200,
+        "data":{
+            "deploy_res": deploy_res,
+            "service_res": service_res,
+            # "ingress_res": ingress_res
+        }
+    }
 
 @app.route('/get/username',methods=['get'])
 @auth.login_required
@@ -126,6 +181,7 @@ def get_username():
         "code":200,
         "username":g.current_user.username
     }
+
 @app.route('/api/login')
 @auth.login_required
 def get_auth_token():

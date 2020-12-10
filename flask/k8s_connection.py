@@ -1,7 +1,7 @@
 from kubernetes import client,config
 from kubernetes import watch as _watch
 import yaml
-# import datetime
+import datetime
 from app.models import *
 
 def k8sInitial():
@@ -88,7 +88,7 @@ def list_deployment_for_all_namespaces():
                 db.session.commit()
             # print(2)
 
-def create_namespaced_deployment(namespace,deploy_infos, containers, volumes={}, pod_infos={}, initail_containers={}, dry_run = True):
+def create_namespaced_deployment(namespace,deploy_infos, containers, volumes={}, pod_infos={}, initail_containers=[], dry_run = True):
 # def create_namespaced_deployment(name, containers, namespace, annotations={}, labels={},restartPolicy='Always',serviceAccountName='default', replicas=1, volumes={}, dry_run = True):
     '''
     创建给定命名空间的deployment
@@ -127,38 +127,12 @@ def create_namespaced_deployment(namespace,deploy_infos, containers, volumes={},
     # containers 字段 
     res['spec']['template']['spec']['containers'] = containers
     res['spec']['template']['spec']['initContainers'] = initail_containers
-    # for i,container in enumerate(containers):
-    #     res['spec']['template']['spec']['containers'][i]['name']=container['name']
-    #     res['spec']['template']['spec']['containers'][i]['image']=container['image']
-    #     res['spec']['template']['spec']['containers'][i]['imagePullPolicy'] = container['imagePullPolicy']
-
-    #     if 'workingDir' in container:
-    #         res['spec']['template']['spec']['containers'][i]['workingDir'] = container['workingDir']
-    #     if 'command' in container:
-    #         res['spec']['template']['spec']['containers'][i]['command'] = container['command']
-    #     if 'args' in container:
-    #         res['spec']['template']['spec']['containers'][i]['args'] = container['args']
-    #     if 'ports' in container:
-    #         for j, port in enumerate(container['ports']):
-    #             res['spec']['template']['spec']['containers'][i]['ports'][j]['containerPort'] = port['containerPort']
-    #             res['spec']['template']['spec']['containers'][i]['ports'][j]['hostPort'] = port['hostPort']           
-    #             res['spec']['template']['spec']['containers'][i]['ports'][j]['protocol'] = port['protocol']
-    #             if 'name' in port:
-    #                 res['spec']['template']['spec']['containers'][i]['ports'][j]['name'] = port['name']
-    #     if 'env' in container:
-    #         res['spec']['template']['spec']['containers'][i]['env'] = container['env']
-    #     if 'envFrom' in container:
-    #         res['spec']['template']['spec']['containers'][i]['envFrom'] = container['envFrom']
-    #     if 'volumeMounts' in container:
-    #         res['spec']['template']['spec']['containers'][i]['volumeMount'] = container['volumeMount']
-    #     if 'resources' in container:
-    #         res['spec']['template']['spec']['containers'][i]['resources'] = container['resources']
 
     # restartPolicy 字段
     res['spec']['template']['spec']['restartPolicy'] = pod_infos['restartPolicy']
 
     # serviceAccountName 字段
-    res['spec']['template']['spec']['serviceAccountName'] = pod_infos['serviceAccountName']
+    res['spec']['template']['spec']['serviceAccountName'] = pod_infos['serviceAccount']
 
     # print(res)  
     api = client.AppsV1Api()
@@ -263,6 +237,15 @@ def format_deployment_event(event):
         deploy['user_id']=0
     return deploy
 
+def format_create_failure(err):
+    '''
+    格式化输出创建错误
+    err: k8s.client.exceptions.ApiException
+    ret: string 错误信息
+    '''
+    body = err.body
+    body_dict = yaml.safe_load(body)
+    return body_dict['message']
 
 if __name__ == '__main__':
     k8sInitial()
@@ -271,3 +254,39 @@ if __name__ == '__main__':
     # list_deployment_for_all_namespaces()
     # create_namespaced_deployment('test1',[{'image':'nginx', 'name':'test-pod', "imagePullPolicy":'Always'}],'default',labels={'label1':'124'})
     # print(delete_namespaced_deployment('test1','default'))
+    with open('/home/werthy/Documents/basic_test.yml') as f:
+        data = yaml.safe_load(f.read())
+
+    w_name = data['deploy_infos']['name']
+    try:
+        data['deploy_infos']['labels']['k8s.webserver/name'] = w_name
+    except TypeError as err:
+        data['deploy_infos']['labels'] = {}
+        data['deploy_infos']['labels']['k8s.webserver/name'] = w_name        
+    try:
+        data['service_infos']['labels']['k8s.webserver/name'] = w_name
+    except KeyError:
+        data['service_infos']['labels'] = {}
+        data['service_infos']['labels']['k8s.webserver/name'] = w_name
+    
+    data['deploy_infos']['annotations']['k8s.webserver/workload'] = w_name
+    try:
+        data['service_infos']['annotations']['k8s.webserver/workload'] = w_name
+    except KeyError:
+        data['service_infos']['annotations'] = {}
+        data['service_infos']['annotations']['k8s.webserver/workload'] = w_name
+    # data['ingress_infos']['annotations']['k8s.webserver/workload'] = w_name
+    # data['ingress_infos']['labels']['k8s.webserver/workload'] = w_name
+   
+    # 名称处理
+    data['service_infos']['name'] = w_name
+    # data['ingress_infos']['name'] = w_name
+
+    # # dry_run 并得到结果（需要格式化，但还没测试）
+    # deploy_res = create_namespaced_deployment(data['namespace'],data['deploy_infos'],data['containers'],pod_infos=data['pod_infos'])
+    try:
+        service_res = create_namespaced_service(data['namespace'],data['service_infos'],True)
+        print(service_res)
+    except client.exceptions.ApiException as err:
+        print(format_create_failure(err))
+    # print(deploy_res)

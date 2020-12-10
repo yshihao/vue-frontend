@@ -1,8 +1,9 @@
 data:
+  fileId: int # 从后台获取,表明这个请求的序号
   namespace: str # 用户对应的namespace,可以考虑为其user_id
   deploy_infos:
     name: str
-    kind: str # 事实上是枚举 {'deployment','statefulSet','daemonSet'}
+    kind: str # 事实上是枚举 {'Deployment','StatefulSet','DaemonSet'}
     labels:
       key1: value1 
       key2: value2 # 其中 key & value 都是 str
