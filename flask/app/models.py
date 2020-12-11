@@ -43,7 +43,12 @@ class Deployment(db.Model):
     creation_timestamp = db.Column(db.String(64),nullable=False)
     user_id = db.Column(db.Integer,db.ForeignKey('users.id'))
     
-
+class DeploymentCreation(db.Model):
+    __tablename__ = 'create_deployments'
+    id = db.Column(db.Integer, primary_key=True)
+    path = db.Column(db.String(64),nullable=False)
+    creation_timestamp = db.Column(db.String(64),nullable=False)
+    user_id = db.Column(db.Integer,db.ForeignKey('users.id'))
 
     
 

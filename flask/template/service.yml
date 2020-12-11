@@ -1,5 +1,8 @@
 apiVersion: v1             #API的版本号，版本号可以用 kubectl api-versions 查询到
 kind: Service              #表明资源对象，例如Pod、RC、Service、Namespace及Node等  
 metadata:                  #资源对象的元数据定义
+  name:
+  annotations:
+  labels:
 spec:                      #资源对象的详细定义，持久化到etcd中保存
   selector:                #label选择器，管理label对应的pod
