@@ -12,12 +12,14 @@
                 <el-option v-for="items in options" :key="items.value" :label="items.label" :value="items.value"></el-option>
                 </el-select>
             </el-form-item>
+            <!--
             <el-form-item label="服务分层" prop="layer">
                 <el-select v-model="serviceForm.layer" placeholder="请选择服务分层">
                 <el-option label="区域一" value="shanghai"></el-option>
                 <el-option label="区域二" value="beijing"></el-option>
                 </el-select>
             </el-form-item>
+            -->
             <el-form-item label="服务名称" prop="name">
                 <el-input v-model="serviceForm.name" ></el-input>
             </el-form-item>
@@ -25,7 +27,7 @@
                 <el-dialog  :visible.sync="commentFormVisible">
                     <el-form :model="tagform">
                         <el-form-item label="注解名" :label-width="formLabelWidth">
-                        <el-input v-model="tagform.name" autocomplete="off"></el-input>
+                        <el-input v-model="tagform.key" autocomplete="off"></el-input>
                         </el-form-item>
                         <el-form-item label="注解值" :label-width="formLabelWidth">
                         <el-input v-model="tagform.value" autocomplete="off"></el-input>
@@ -37,12 +39,11 @@
                     </div>
                 </el-dialog>
                 <el-tag
-                v-for="tag in comments"
-                :key="tag.name"
+                v-for="(value,name,index) in comment"
+                :key=index
                 closable
-                :type="tag.type"
                 @close="handclosecomment(tag)">
-                {{tag.name}}:{{tag.value}}
+                {{name}}:{{value}}
                 </el-tag>
                 <el-button class="button-new-tag" size="small" @click="showcomment">+ New Tag</el-button>
             </el-form-item>
@@ -50,7 +51,7 @@
                 <el-dialog  :visible.sync="tagFormVisible">
                     <el-form :model="tagform">
                         <el-form-item label="标签名" :label-width="formLabelWidth">
-                        <el-input v-model="tagform.name" autocomplete="off"></el-input>
+                        <el-input v-model="tagform.key" autocomplete="off"></el-input>
                         </el-form-item>
                         <el-form-item label="标签值" :label-width="formLabelWidth">
                         <el-input v-model="tagform.value" autocomplete="off"></el-input>
@@ -62,16 +63,17 @@
                     </div>
                 </el-dialog>
                 <el-tag
-                v-for="tag in tags"
-                :key="tag.name"
+                v-for="tag in serviceForm.tag"
+                :key="tag.key"
                 closable
                 :type="tag.type"
                 @close="handclosetag(tag)">
-                {{tag.name}}:{{tag.value}}
+                {{tag.key}}:{{tag.value}}
                 </el-tag>
                 <el-button class="button-new-tag" size="small" @click="showtag">+ New Tag</el-button>
 
             </el-form-item>
+            
             <el-form-item label="服务描述" prop="descriptor">
                 <el-input type="textarea" v-model="serviceForm.descriptor"></el-input>
             </el-form-item>
@@ -94,14 +96,6 @@ export default {
           formLabelWidth:'',
          tagFormVisible:false,
          commentFormVisible:false,
-         tags: [
-          { name: '标签一',value:'dsf',type: '' },
-          { name: '标签二', value:'dfsd',type: 'success' },
-        ],
-        comments: [
-          { name: '标签一',value:'dsf',type: '' },
-          { name: '标签二', value:'dfsd',type: 'success' },
-        ],
          options:[
              {
                  value:'1',
@@ -116,19 +110,16 @@ export default {
                  label:'DaemonSet'
              },
          ],
+
          tagform:{
-             name:'',
+             key:'',
              value:''
          },
          serviceForm: {
           type:'',
-          layer:'',
           name: '',
-          comment:'',
-          tag: [
-          { name: '标签一',value:'dsf',type: '' },
-          { name: '标签二', value:'dfsd',type: 'success' },
-          ],
+          comment:{},
+          tag:{},
           descriptor: '',
           copynum: ''
         },
@@ -136,12 +127,9 @@ export default {
           type: [
               {required:true,message:'请选择服务类型',trigger:'blur'}
           ],
-          layer: [
-              {required:true,message:'请选择服务层数',trigger:'blur'}
-          ],
           name: [
             { required: true, message: '请输入服务名称', trigger: 'blur' },
-            { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+            { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
           ],
           tag: [
               {required:true,message:'请选择标签',trigger:'blur'}
@@ -156,7 +144,24 @@ export default {
         submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            alert('submit!');
+            /*
+            let type = this.serviceForm.type;
+            let name = this.serviceForm.name;
+            let label = this.serviceForm.tag;
+            let annotation = this.serviceForm.comment;
+            let replicas = this.serviceForm.copynum;
+            console.log(annotation);
+            api.addDeployment(type,name,annotation,label,replicas).then(res=>{
+                let mystate = res.data.code;
+                console.log(mystate);
+                if(mystate== 200) {
+                   alert('submit!');
+                }
+            }).catch(err=>{
+                console.log(err);
+            })*/
+            ;
+           
           } else {
             console.log('error submit!!');
             return false;
@@ -177,28 +182,29 @@ export default {
       },
       handletagConfirm() {
         this.tagFormVisible = false;
-        let name = this.tagform.name;
+        let key = this.tagform.key;
         let value = this.tagform.value;
         if (name&&value) {
-          this.tags.push({name:name,value:value});
-          this.tagform.name="";
+          this.serviceForm.tag[key]=value;
+          this.tagform.key="";
           this.tagform.value="";
         }
         
       },
       handclosetag(tag) {
-          this.tags.splice(this.tags.indexOf(tag),1);
+          this.serviceForm.tag.splice(this.serviceForm.tag.indexOf(tag),1);
       },
       handclosecomment(tag) {
-          this.comments.splice(this.comments.indexOf(tag),1);
+          this.serviceForm.comment.splice(this.serviceForm.comment.indexOf(tag),1);
       },
       handlecommentConfirm() {
         this.commentFormVisible = false;
-        let name = this.tagform.name;
+        let key = this.tagform.key;
         let value = this.tagform.value;
         if (name&&value) {
-          this.comments.push({name:name,value:value});
-          this.tagform.name="";
+         // this.serviceForm.comment.push({key:name,value:value});
+          this.serviceForm.comment[key] = value;
+          this.tagform.key="";
           this.tagform.value="";
         }
         
