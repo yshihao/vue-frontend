@@ -13,25 +13,27 @@ data:
     replicas: int
 
   volumes:
-    name: str
-    kind: str # 枚举{'NFS','储存卷声明','hostPath','secret','configMap'}
-    # 五选一
-    # NFS
-    NfsServer: str # ip or 域名
-    NfsPath: str # 路径 '/../../..'
-    # 储存卷声明
-    Pvc: # 参考文档，指向集群中的PVC资源
-    # hostPath
-    path: str # 节点路径
-    type: str # 枚举
-    # secret 
-    secret: str # 指向集群中的secret，名称匹配
-    key: str # 该secret的key，名称匹配
-    path: str # 路径
-    # configMap
-    configMap: str # 指向集群中的configMap，名称匹配
-    key: str # 该configMap的key，名称匹配
-    path: str # 路径     
+    - name: str
+      kind: str # 枚举{'nfs','pvc','hostPath','secret','configMap'}
+      # 五选一
+      # NFS
+      nfsServer: str # ip or 域名
+      nfsPath: str # 路径 '/../../..'
+      # 储存卷声明
+      pvcName: # 参考文档，指向集群中的PVC资源
+      # hostPath
+      path: str # 节点路径
+      type: str # 枚举
+      # secret 
+      secret: str # 指向集群中的secret，名称匹配
+      keyToPath:
+      - key: str # 该secret的key，名称匹配
+        path: str # 路径
+      # configMap
+      configMap: str # 指向集群中的configMap，名称匹配
+      keyToPath:
+      - key: str # 该configMap的key，名称匹配
+        path: str # 路径     
 
   pod_infos:
     restartPolicy: str # 枚举 {'Always','OnFailure','Never'}
@@ -78,10 +80,16 @@ data:
     type: str # 枚举{'ClusterIP','NodePort'}
     ports:
       - name: str # 端口名称，应该是随机生成的，用户也可以改
-        nodePort: int # 容器端口
-        port: int # 服务端口
+        nodePort: int # 节点端口，只有NodePort有。如果用户不填，最好没有这个字段
+        port: int # 容器端口
         protocol: str # 枚举 {'TCP'，'UDP'}
-        targetPort: int # 集群端口，只有NodePort有。如果用户不填，最好没有这个字段
+        targetPort: int # 服务端口
     
-  ingress_infos: # 待续
-
+  ingress_infos: 
+    host: str # 域名
+    https: bool
+    tlsSecret: str # 指向集群中的secret, 名称匹配
+    rules:
+    - url: str # 子路径
+      serviceName: str # 指向集群中的服务,名称
+      port: str # 该服务的端口

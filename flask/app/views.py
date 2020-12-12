@@ -107,12 +107,19 @@ def add_deployment():
     except KeyError:
         data['service_infos']['labels'] = {}
         data['service_infos']['labels']['k8s.webserver/name'] = w_name
-    # data['ingress_infos']['annotations']['k8s.webserver/workload'] = w_name
-    # data['ingress_infos']['labels']['k8s.webserver/workload'] = w_name
-   
+    try:
+        data['ingress_infos']['annotations']['k8s.webserver/workload'] = w_name
+    except KeyError:
+        data['ingress_infos']['annotations']['k8s.webserver/workload'] = w_name
+    try:
+        data['ingress_infos']['labels']['k8s.webserver/name'] = w_name
+    except KeyError:
+        data['ingress_infos']['labels'] = {}
+        data['ingress_infos']['labels']['k8s.webserver/name'] = w_name
+
     # 名称处理
     data['service_infos']['name'] = w_name
-    # data['ingress_infos']['name'] = w_name
+    data['ingress_infos']['name'] = w_name
 
     # # dry_run 并得到结果（需要格式化，但还没测试）
     try:
@@ -127,7 +134,12 @@ def add_deployment():
     except k8s_connection.client.exceptions.ApiException as err:
         service_res = k8s_connection.format_create_failure(err)
         service_succeed = False
-    # ingress_res = k8s_connection.create_namespaced_ingress(data['namespace'],data['ingress_infos'],True)
+    try:
+        ingress_res = k8s_connection.create_namespaced_ingress(data['namespace'],data['ingress_infos'],True)
+        ingress_succeed = True
+    except k8s_connection.client.exceptions.ApiException as err:
+        ingress_res = k8s_connection.format_create_failure(err)
+        ingress_succeed = False
 
     # 考虑临时文件储存一下这个配置，给个有效时间
     path = "/home/werthy/TempFiles/"+data['namespace']+'_'+data['fileId']+'.yml'
@@ -146,7 +158,8 @@ def add_deployment():
             "deploy_res": deploy_res,
             "service_succeed": service_succeed,
             "service_res": service_res,
-            # "ingress_res": ingress_res
+            "ingress_succeed": ingress_succeed,
+            "ingress_res": ingress_res
         }
     }
 
@@ -156,20 +169,44 @@ def confirm_deployment():
     '''
     读取暂存的临时文件，校验其时间，如果在有效期内，则发往k8s执行.
     '''
-    path = DeploymentCreation.query.filter(DeploymentCreation.id==_data['fileId'],DeploymentCreation.user_id==_data['namespace']).first().path
-    with open(path) as f:
-        data = yaml.safe_load(f.read())
-
-    deploy_res = k8s_connection.create_namespaced_deployment(data['namespace'],data['deploy_infos'],data['containers'],data['volumes'],data['pod_infos'],data['initial_contianers'],False)
-    service_res = k8s_connection.create_namespaced_service(data['namespace'],data['service_infos'],False)
-    # ingress_res = k8s_connection.create_namespaced_ingress(data['namespace'],data['ingress_infos'],False)
+    user_id = request.args.get('id')
+    file_id = request.args.get('fileId')
+    
+    res = {
+        'not_find_file': False,
+        'out_of_time': False,
+        'deploy_succeed': False,
+        'service_succeed': False,
+        'ingress_succeed': False
+    }
+    record = DeploymentCreation.query.filter(DeploymentCreation.id==file_id,DeploymentCreation.user_id==user_id).first()
+    now_time = datetime.datetime.now().timestamp()
+    if record == None:
+        res['not_find_file'] = True
+    elif now_time - record.creation_timestamp > 5 * 60:
+        res['out_of_time'] = True
+    else:
+        path = record.path
+        with open(path) as f:
+            data = yaml.safe_load(f.read())
+        try:
+            res['deploy_res'] = k8s_connection.create_namespaced_deployment(data['namespace'],data['deploy_infos'],data['containers'],data['volumes'],data['pod_infos'],data['initial_contianers'],False)
+            res['deploy_succeed']= True
+        except k8s_connection.client.exceptions.ApiException as err:
+            res['deploy_res'] = k8s_connection.format_create_failure(err)
+        try:
+            res['service_res'] = k8s_connection.create_namespaced_service(data['namespace'],data['service_infos'],False)
+            res['service_succeed'] = True
+        except k8s_connection.client.exceptions.ApiException as err:
+            res['service_res'] = k8s_connection.format_create_failure(err)
+        try:
+            res['ingress_res'] = k8s_connection.create_namespaced_ingress(data['namespace'],data['ingress_infos'],False)
+            res['ingress_succeed'] = True
+        except k8s_connection.client.exceptions.ApiException as err:
+            res['ingress_res'] = k8s_connection.format_create_failure(err)
     return {
         "code":200,
-        "data":{
-            "deploy_res": deploy_res,
-            "service_res": service_res,
-            # "ingress_res": ingress_res
-        }
+        "data":res
     }
 
 @app.route('/get/username',methods=['get'])
