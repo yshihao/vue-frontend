@@ -45,6 +45,22 @@ export default {
             }
         });
     },
+    addDeployment(servicetype,servicename,annotation,label,replica) {
+        return service({
+            url:'/api/addDeployment',
+            method:'post',
+            data:{
+                deploy_infos:{
+                name:servicename,
+                type:servicetype,
+                labels:label,
+                annotations:annotation,
+                replicas:replica
+                }
+                
+            }
+        })
+    },
     requestLogin(username,password) {
         return service({
             url:'/login',
