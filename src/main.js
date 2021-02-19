@@ -6,6 +6,7 @@ import router from './router/index.js';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import less from 'less';
+import 'normalize.css/normalize.css'
 import service from '@/api/api'
 Vue.use(ElementUI);
 Vue.use(less);

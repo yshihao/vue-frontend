@@ -65,15 +65,21 @@ data:
           mountPropagation: str # 枚举{'None','HostToContainer','Bidirectional'}
           name: str # 匹配集群中的数据卷，具体来说就是上面的hostPath
           readOnly: bool
-          subPath/subPathExpr: str # 这个感觉使用subPathExpr可以代替两个的作用(大概吧)
-      resources:
-        limits: 
-          cpu: str
-          memory: str
-        requests:
-          cpu: str
-          memory: str
-
+          subPath_subPathExpr: str # 这个感觉使用subPathExpr可以代替两个的作用(大概吧)
+     # resources:
+     #   limitsmin: 
+     #     cpu: str
+     #     memory: str
+     #   requests:
+     #     cpu: str
+     #     memory: str
+        resources:
+          cpulimits:
+            cpumin:str
+            cpumax:str
+          memlimits:
+            memmin:str
+            memmax:str
   service_infos:
     type: str # 枚举{'ClusterIP','NodePort'}
     ports:

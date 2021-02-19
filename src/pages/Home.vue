@@ -142,6 +142,7 @@ export default {
 <style lang="less" scoped>
 #app {
     .body-container {
+        margin:0;
         min-height: 800px;
         position: relative;
         .body-aside {

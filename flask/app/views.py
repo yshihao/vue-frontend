@@ -77,6 +77,21 @@ def deployment_list():
         "code": 200,
         "data": result
     }
+@app.route('/api/addDeploymentTest',methods=['post','get'])
+@auth.login_required
+def add_deploymenttest():
+    data = request.get_json(force=True)
+    
+    dd = data['deploy_infos']
+
+    d = data['containers']
+    print("containers")
+    print(d)
+    print("deploy_infos")
+    print(dd)
+    return {
+        "code":200
+    }
 @app.route('/api/addDeployment',methods=['post','get'])
 @auth.login_required
 def add_deployment():
@@ -85,7 +100,10 @@ def add_deployment():
     '''
     data = request.get_json(force=True)
 
+    
+
     # test
+    
     data['namespace'] = 0
     data['fileId'] = 1
 
@@ -149,6 +167,7 @@ def add_deployment():
             # "ingress_res": ingress_res
         }
     }
+
 
 @app.route('/api/confirmDeployment',methods=['post','get'])
 @auth.login_required

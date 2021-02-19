@@ -45,19 +45,23 @@ export default {
             }
         });
     },
-    addDeployment(servicetype,servicename,annotation,label,replica) {
+    addDeployment(deploy_infos,containers) {
         return service({
-            url:'/api/addDeployment',
+            url:'/api/addDeploymentTest',
             method:'post',
             data:{
-                deploy_infos:{
-                name:servicename,
-                type:servicetype,
-                labels:label,
-                annotations:annotation,
-                replicas:replica
-                }
-                
+                deploy_infos:deploy_infos,
+                containers:containers
+            }
+        })
+    },
+    addDeploymentTest(form) {
+        return service({
+            url:'/api/addDeploymentTest',
+            method:'post',
+            data:{
+                type:'test',
+                form:form
             }
         })
     },
