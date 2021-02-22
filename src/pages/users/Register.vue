@@ -121,7 +121,7 @@
 </template>
 
 <script>
-import api from '@/api/api'
+import api from '@/api/api';
 export default {
     name: 'register',
     data() {
@@ -258,35 +258,34 @@ export default {
             //TODO 根据用户身份选择跳转到不同页面
         },
         handleRegister() {
-            let formName = "registerForm";
-            this.$refs[formName].validate((valid) => {
-            if (valid) {
-                let username = this.registerForm.username;
-                let password = this.registerForm.password;
-                api.registerUser(username,password).then(res=>{
-                if(res.data=="userexist") {
-                    alert("用户名存在")
-                    this.registerForm.username=""
-                    this.registerForm.password=""
-                    this.registerForm.passwordAgain=""
-                }else {
-                    alert("注册成功，跳转到登陆界面")
-                    this.$router.push({path:"/login"})
+            let formName = 'registerForm';
+            this.$refs[formName].validate(valid => {
+                if (valid) {
+                    let username = this.registerForm.username;
+                    let password = this.registerForm.password;
+                    api.registerUser(username, password)
+                        .then(res => {
+                            if (res.data == 'userexist') {
+                                alert('用户名存在');
+                                this.registerForm.username = '';
+                                this.registerForm.password = '';
+                                this.registerForm.passwordAgain = '';
+                            } else {
+                                alert('注册成功，跳转到登陆界面');
+                                this.$router.push({ path: '/login' });
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                } else {
+                    console.log('error submit!!');
+                    return false;
                 }
-            }
-            ).catch(err=>{
-                console.log(err);
-            })
-            } else {
-            console.log('error submit!!');
-            return false;
-             }
             });
-           
-
         },
         handleToLogin() {
-            this.$router.push({path:"/login"})
+            this.$router.push({ path: '/login' });
         }
     }
 };

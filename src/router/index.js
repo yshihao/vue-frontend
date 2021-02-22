@@ -11,9 +11,9 @@ import DataCenters from '../pages/old/DataCenters';
 import ServerAndNets from '../components/old/DataCenter/ServerAndNets';
 import Login from '../pages/users/Login';
 import Register from '../pages/users/Register';
-import Home from '@/pages/Home'
-import Deploy from '@/components/Deployment/Deploy'
-import layout from '@/components/createDeploy/layout'
+import Home from '@/pages/Home';
+import Deploy from '@/components/Deployment/Deploy';
+import layout from '@/components/createDeploy/layout';
 Vue.use(VueRouter);
 
 const originalPush = VueRouter.prototype.push;
@@ -35,30 +35,30 @@ const routes = [
     {
         path: '/home',
         name: 'Home',
-        component: Home,  
-        meta:{
+        component: Home,
+        meta: {
             requireAuth: true
         },
-        children:[
+        children: [
             {
                 path: '/home/deploy',
                 name: 'Deploy',
                 component: Deploy,
-                meta:{
-                    requireAuth:true
+                meta: {
+                    requireAuth: true
                 }
-            },{
-                path:'/home/createdeploy',
-                name:'createDeploy',
+            },
+            {
+                path: '/home/createdeploy',
+                name: 'createDeploy',
                 component: layout,
-                meta:{
-                    requireAuth:true
+                meta: {
+                    requireAuth: true
                 }
             }
         ]
-      
     },
-    
+
     {
         path: '/create_net',
         name: 'CreateNet',

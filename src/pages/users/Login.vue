@@ -25,7 +25,6 @@
                     v-model="loginForm.username"
                     auto-complete="off"
                     placeholder="请输入用户名"
-                    
                 ></el-input>
             </el-form-item>
             <el-form-item prop="password">
@@ -62,7 +61,7 @@
 
 <script>
 import { mapMutations } from 'vuex';
-import api from '@/api/api'
+import api from '@/api/api';
 export default {
     name: 'login',
     data() {
@@ -86,58 +85,52 @@ export default {
             loginForm: {
                 email: '',
                 password: '',
-                username:''
+                username: ''
             },
 
             rules: {
-                email: [
-                    { required: false, trigger: 'blur'}
-                ],
-                username:[
-                    {required:true,trigger:'blur'}
-                ],
+                email: [{ required: false, trigger: 'blur' }],
+                username: [{ required: true, trigger: 'blur' }],
                 password: [
                     {
                         required: true,
-                        trigger: 'blur',
+                        trigger: 'blur'
                     }
                 ]
             }
         };
     },
     methods: {
-        ...mapMutations([
-            'changeLogin'
-        ]),
+        ...mapMutations(['changeLogin']),
         handleRoute(route) {
-            
             // TODO 根据用户身份选择跳转到不同的页面
         },
         handleLogin() {
             let user = this.loginForm.username;
-                let password = this.loginForm.password;
-                api.requestLogin(user,password).then(res => {
+            let password = this.loginForm.password;
+            api.requestLogin(user, password)
+                .then(res => {
                     //this.tableData = res.data.data;
                     let token = res.data;
-                    if(token=="wrong user"){
-                        alert("用户名错误")
-                        this.$router.push({path:"/login"})
-                    }else if(token=="wrong password") {
-                        alert("密码错误")
-                        this.$router.push({path:"/login"})
-                    }else {
-                        console.log(token)
-                        this.changeLogin({Authorization:token});
-                        this.$router.push({path:"/home"})
-                        alert("登陆成功")
-                    }   
-                }).catch(err=>{
-                    console.log("wat")
+                    if (token == 'wrong user') {
+                        alert('用户名错误');
+                        this.$router.push({ path: '/login' });
+                    } else if (token == 'wrong password') {
+                        alert('密码错误');
+                        this.$router.push({ path: '/login' });
+                    } else {
+                        console.log(token);
+                        this.changeLogin({ Authorization: token });
+                        this.$router.push({ path: '/home' });
+                        alert('登陆成功');
+                    }
                 })
-            
+                .catch(err => {
+                    console.log('wat');
+                });
         },
         handleToRegister() {
-            this.$router.push({path:"/register"})
+            this.$router.push({ path: '/register' });
         }
     }
     // beforeRouteLeave(to, from, next){

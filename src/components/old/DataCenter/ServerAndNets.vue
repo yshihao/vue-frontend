@@ -25,8 +25,11 @@
                 </el-menu>
             </el-aside>
             <el-main>
-                <Net v-show="netVisible"  :Docklists="Docklists2"></Net>
-                <Serverdock v-show="serverVisible" :Docklists="Docklists"></Serverdock>
+                <Net v-show="netVisible" :Docklists="Docklists2"></Net>
+                <Serverdock
+                    v-show="serverVisible"
+                    :Docklists="Docklists"
+                ></Serverdock>
             </el-main>
         </el-container>
     </div>
@@ -35,18 +38,18 @@
 <script>
 import api from '@/api/api';
 import Net from './Net';
-import Serverdock from './Server'
+import Serverdock from './Server';
 
 export default {
     name: 'ServerAndNets',
-    components: { Net,Serverdock},
+    components: { Net, Serverdock },
     props: ['servers', 'nets', 'dataCenterVisible'],
     data() {
         return {
             netVisible: false,
-            serverVisible:false,
-            Docklists:[],
-            Docklists2:[]
+            serverVisible: false,
+            Docklists: [],
+            Docklists2: []
         };
     },
     computed: {
@@ -58,18 +61,18 @@ export default {
         handleServerClick(item) {
             this.netVisible = false;
             this.serverVisible = true;
-            api.getDockerList(item,1,"phy").then(res => {
-            this.Docklists = res.data.data;
-           // console.log(this.Docklists)
+            api.getDockerList(item, 1, 'phy').then(res => {
+                this.Docklists = res.data.data;
+                // console.log(this.Docklists)
             });
         },
         handleNetClick(item) {
             this.serverVisible = false;
             this.netVisible = true;
-            api.getDockerList(item,1,"net").then(res => {
-            this.Docklists2 = res.data.data;
-           // console.log(this.Docklists2)
-        });
+            api.getDockerList(item, 1, 'net').then(res => {
+                this.Docklists2 = res.data.data;
+                // console.log(this.Docklists2)
+            });
         }
     },
 

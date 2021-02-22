@@ -4,6 +4,9 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer,SignatureExpired,BadSignature
 
 class User(db.Model):
+    '''
+    用户表模型
+    '''
     __tablename__ = 'users'
     id = db.Column(db.Integer,primary_key=True)
     email = db.Column(db.String(64),unique=True,index=True)
@@ -34,6 +37,9 @@ class User(db.Model):
         return user
 
 class Deployment(db.Model):
+    '''
+    存储deployment
+    '''
     __tablename__ = 'deployments'
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(64),unique=True,nullable=False)

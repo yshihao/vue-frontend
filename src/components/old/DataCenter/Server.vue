@@ -1,8 +1,7 @@
 <template>
     <div>
         <el-container>
-             <el-header>  
-            </el-header>
+            <el-header></el-header>
             <el-main>
                 <el-table :data="Docklists" border style="width: 100%">
                     <el-table-column
@@ -40,25 +39,21 @@
 import api from '@/api/api';
 export default {
     name: 'ServerDock',
-   // components: { Graph },
-    props:['Docklists'],
+    // components: { Graph },
+    props: ['Docklists'],
     methods: {
         handleClick(row) {
             //console.log(row.name)
             this.$router.push({
-                name: 'DeviceInfo',     
+                name: 'DeviceInfo',
                 params: {
                     deviceName: row.id
                 }
             });
-        },
-       
+        }
     },
     data() {
-       
-        return {
-           
-        };
+        return {};
     },
     created() {}
 };

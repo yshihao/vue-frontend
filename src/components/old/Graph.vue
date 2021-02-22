@@ -58,7 +58,7 @@ export default {
             if (zoom > 3) {
                 this.graph.zoomTo(3);
             }
-           // console.log(zoom, this.graph.getZoom());
+            // console.log(zoom, this.graph.getZoom());
         }
     },
     props: ['nodes', 'edges'],

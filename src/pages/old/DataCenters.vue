@@ -32,10 +32,10 @@ export default {
     components: {
         ServerAndNets
     },
-    data() { 
-        userid:1
+    data() {
+        userid: 1;
         return {
-             userid:1,
+            userid: 1,
             dataCenters: [],
             servers: [],
             nets: [],

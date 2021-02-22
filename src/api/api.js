@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Config from '@/config/index'
+import Config from '@/config/index';
 import store from '../store';
 import router from '@/router/index.js';
 //some configs
@@ -8,30 +8,36 @@ const service = axios.create({
     timeout: 1500000,
     baseURL: Config.baseUrl
 });
-service.interceptors.request.use(function (config) {
-    let token = localStorage.getItem('Authorization');
-    if (token) {
-         config.headers['accessToken'] = token;
+service.interceptors.request.use(
+    function(config) {
+        let token = localStorage.getItem('Authorization');
+        if (token) {
+            config.headers['accessToken'] = token;
+        }
+        return config;
+    },
+    function(error) {
+        // Do something with request error
+        return Promise.reject(error);
     }
-    return config;
-}, function (error) {
-    // Do something with request error
-    return Promise.reject(error);
-});
-service.interceptors.response.use(function(response){
-    let status = response.status;
-    return response;
-},function(error){
-    if(error.response){
-        switch(error.response.status){
-            case 401:
-                store.commit('del_token')
-                alert("登陆过期，重新登陆")
-                router.push('/login')
-            break;
+);
+service.interceptors.response.use(
+    function(response) {
+        let status = response.status;
+        return response;
+    },
+    function(error) {
+        if (error.response) {
+            switch (error.response.status) {
+                case 401:
+                    store.commit('del_token');
+                    alert('登陆过期，重新登陆');
+                    router.push('/login');
+                    break;
+            }
         }
     }
-})
+);
 export default {
     //send the formatted file to the server
     sendYaml(data) {
@@ -45,69 +51,67 @@ export default {
             }
         });
     },
-    addDeployment(deploy_infos,containers) {
+    addDeployment(deploy_infos, containers) {
         return service({
-            url:'/api/addDeploymentTest',
-            method:'post',
-            data:{
-                deploy_infos:deploy_infos,
-                containers:containers
+            url: '/api/addDeploymentTest',
+            method: 'post',
+            data: {
+                deploy_infos: deploy_infos,
+                containers: containers
             }
-        })
+        });
     },
     addDeploymentTest(form) {
         return service({
-            url:'/api/addDeploymentTest',
-            method:'post',
-            data:{
-                type:'test',
-                form:form
+            url: '/api/addDeploymentTest',
+            method: 'post',
+            data: {
+                type: 'test',
+                form: form
             }
-        })
+        });
     },
-    requestLogin(username,password) {
+    requestLogin(username, password) {
         return service({
-            url:'/login',
-            method:'post',
-            data:{
-                username:username,
-                password:password,
+            url: '/login',
+            method: 'post',
+            data: {
+                username: username,
+                password: password
             }
-
-        })
+        });
     },
     getusername() {
         return service({
-            url:'/get/username',
-            method:'get'
-        })
+            url: '/get/username',
+            method: 'get'
+        });
     },
-    registerUser(username,password){
+    registerUser(username, password) {
         return service({
-            url:'/register',
-            method:'post',
-            data:{
-                username:username,
-                password:password,
+            url: '/register',
+            method: 'post',
+            data: {
+                username: username,
+                password: password
             }
-
-        })
+        });
     },
     getDeploymentList() {
         return service({
-            url:'api/deployment/list',
-            method:'get'
+            url: 'api/deployment/list',
+            method: 'get'
         });
     },
-    addContainer(containername,imagename) {
+    addContainer(containername, imagename) {
         return service({
-            url:'/api/addcontainer',
-            methods:'post',
-            params:{
+            url: '/api/addcontainer',
+            methods: 'post',
+            params: {
                 containername,
                 imagename
             }
-        })
+        });
     },
     //get network info from the server
     getNetworkInfo() {
@@ -125,7 +129,7 @@ export default {
             }
         });
     },
-    getDockerList(netName,userid,type) {
+    getDockerList(netName, userid, type) {
         return service({
             url: 'api/net/info',
             method: 'get',
@@ -141,7 +145,7 @@ export default {
             url: 'api/net/device/info',
             method: 'get',
             params: {
-                dockName,
+                dockName
             }
         });
     },
@@ -150,7 +154,7 @@ export default {
         return service({
             url: 'api/data_centers/info',
             method: 'get',
-            params:{
+            params: {
                 userid
             }
         });

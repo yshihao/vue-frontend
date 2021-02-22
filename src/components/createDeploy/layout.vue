@@ -1,3 +1,6 @@
+<!-- 
+  创建deploy需要 配置baseinfo、service、volume等  全部放在这个组件里布局
+-->
 <template>
       <div class="text item" >
         <div class="save"> 
