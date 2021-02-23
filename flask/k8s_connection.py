@@ -88,7 +88,7 @@ def list_deployment_for_all_namespaces():
                 db.session.commit()
             # print(2)
 
-def create_namespaced_deployment(namespace,deploy_infos, containers, volumes={}, pod_infos={}, initail_containers=[], dry_run = True):
+def create_namespaced_deployment(namespace,deploy_infos, containers, volumes=[], pod_infos={'restartPolicy':'Always', 'serviceAccount':'default'}, initail_containers=[], dry_run = True):
 # def create_namespaced_deployment(name, containers, namespace, annotations={}, labels={},restartPolicy='Always',serviceAccountName='default', replicas=1, volumes={}, dry_run = True):
     '''
     创建给定命名空间的deployment
@@ -99,7 +99,7 @@ def create_namespaced_deployment(namespace,deploy_infos, containers, volumes={},
     containers: dict 太复杂了....见yaml
     initail_containers: dict 同上
     dry_run: bool 是否干跑,也即不执行具体内容，只是看配置是否可行
-    ret: -> dict 成功则是返回的yaml，失败则是包含错误代码与错误提示信息的dict
+    ret: -> 成功则是返回的yaml，失败则抛出ApiException异常并带有错误信息
     '''
     with open('./flask/template/template.yml') as f:
         res = yaml.safe_load(f.read())
@@ -121,8 +121,28 @@ def create_namespaced_deployment(namespace,deploy_infos, containers, volumes={},
     # replicas 字段
     res['spec']['replicas'] = deploy_infos['replicas']
 
-    # volumes 字段 需要完善！
-    res['spec']['template']['spec']['volumes'] = None
+    # volumes 字段 
+    for i,volume in enumerate(volumes):
+        volume_kind = volume['kind']
+        if volume_kind == 'nfs':
+            res['spec']['template']['spec']['volumes'][i]['nfs']['server'] = volume['nfsServer']
+            res['spec']['template']['spec']['volumes'][i]['nfs']['path'] = volume['nfsPath']
+        elif volume_kind == 'pvc':
+            res['spec']['template']['spec']['volumes'][i]['persistentVolumeClaim']['claimName'] = volume['pvcName']
+        elif volume_kind == 'hostPath':
+            res['spec']['template']['spec']['volumes'][i]['hostPath']['path'] = volume['path']
+            res['spec']['template']['spec']['volumes'][i]['hostPath']['type'] = volume['type']
+        elif volume_kind == 'configMap':
+            res['spec']['template']['spec']['volumes'][i]['configMap']['name'] = volume['configMap']
+            res['spec']['template']['spec']['volumes'][i]['configMap']['items'] = volume['keyToPath']
+        elif volume_kind == 'secret':
+            res['spec']['template']['spec']['volumes'][i]['secret']['secretName'] = volume['secret']
+            res['spec']['template']['spec']['volumes'][i]['secret']['items'] = volume['keyToPath']
+        else:
+            res['spec']['template']['spec']['volumes'][i] = None
+            break
+        # volume 的名称
+        res['spec']['template']['spec']['volumes'][i]['name'] = volume['name']
 
     # containers 字段 
     res['spec']['template']['spec']['containers'] = containers
@@ -148,7 +168,9 @@ def create_namespaced_service(namespace, service_info, dry_run=True):
     '''
     创建给定命名空间的Service
     namespace: str 给定的命名空间
-    service_info: {'}
+    service_info: {'name':str name, 'annotations':dict annotation, 'labels':dict label, 'type':str type, 'ports':list port}
+    dry_run: bool 是否是空跑
+    ret: -> 成功则是返回的yaml，失败则抛出ApiException异常并带有错误信息
     '''
     with open('./flask/template/service.yml') as f:
         body = yaml.safe_load(f.read())
@@ -173,6 +195,10 @@ def create_namespaced_service(namespace, service_info, dry_run=True):
 
 def create_namespaced_ingress(namespace, ingress_info,dry_run=True):
     '''
+    创建给定命名空间的ingress
+    namespace:str 命名空间的名称
+    ingress_info: {'name':str name, 'annotations':dict annotation, 'labels':dict label, 'rules':dict rule, 'tls':dict tls}
+    ret: -> 成功则是返回的yaml，失败则抛出ApiException异常并带有错误信息
     '''
     with open('./flask/template/ingress.yml') as f:
         body = yaml.safe_load(f.read())
@@ -183,8 +209,15 @@ def create_namespaced_ingress(namespace, ingress_info,dry_run=True):
     body['metadata']['labels'] = ingress_info['labels']
 
     # 配置信息
-    body['spec']['rules'] = ingress_info['rules']
-    body['spec']['tls'] = ingress_info['tls']
+    if ingress_info['https']:
+        body['spec']['tls']['hosts'][0] = ingress_info['host'] # 存疑，我得再研究一下
+        body['spec']['tls']['secretName'] = ingress_info['tlsSecret']
+
+    body['spec']['rules']['host'] = ingress_info['host']
+    for i,rule in enumerate(rules):
+        body['spec']['rules']['http']['paths'][i]['path'] = ingress_info['url']
+        body['spec']['rules']['http']['paths'][i]['backend']['service']['name'] = ingress_info['serviceName']
+        body['spec']['rules']['http']['paths'][i]['backend']['service']['port'] = ingress_info['port']
 
     api = client.NetworkingV1beta1Api()
     if dry_run:
@@ -247,46 +280,50 @@ def format_create_failure(err):
     body_dict = yaml.safe_load(body)
     return body_dict['message']
 
+def database_test(user_id, file_id):
+    res = {
+        'not_find_file': False,
+        'out_of_time': False,
+        'deploy_succeed': False,
+        'service_succeed': False,
+        'ingress_succeed': False
+    }
+    record = DeploymentCreation.query.filter(DeploymentCreation.id==file_id,DeploymentCreation.user_id==user_id).first()
+    now_time = datetime.datetime.now().timestamp()
+    if record == None:
+        res['not_find_file'] = True
+    elif now_time - record.creation_timestamp > 5 * 60:
+        res['out_of_time'] = True
+    else:
+        path = record.path
+        with open(path) as f:
+            data = yaml.safe_load(f.read())
+    try:
+        res['deploy_res'] = k8s_connection.create_namespaced_deployment(data['namespace'],data['deploy_infos'],data['containers'],data['volumes'],data['pod_infos'],data['initial_contianers'],False)
+        res['deploy_succeed']= True
+    except k8s_connection.client.exceptions.ApiException as err:
+        res['deploy_res'] = k8s_connection.format_create_failure(err)
+    try:
+        res['service_res'] = k8s_connection.create_namespaced_service(data['namespace'],data['service_infos'],False)
+        res['service_succeed'] = True
+    except k8s_connection.client.exceptions.ApiException as err:
+        res['service_res'] = k8s_connection.format_create_failure(err)
+    try:
+        res['ingress_res'] = k8s_connection.create_namespaced_ingress(data['namespace'],data['ingress_infos'],False)
+        res['ingress_succeed'] = True
+    except k8s_connection.client.exceptions.ApiException as err:
+        res['ingress_res'] = k8s_connection.format_create_failure(err)
+    return {
+        "code":200,
+        "data":res
+    }
+
+
 if __name__ == '__main__':
     k8sInitial()
     # list_all_namespaces()
     # list_namespaced_deployment(watch=True)
     # list_deployment_for_all_namespaces()
-    # create_namespaced_deployment('test1',[{'image':'nginx', 'name':'test-pod', "imagePullPolicy":'Always'}],'default',labels={'label1':'124'})
+    print(create_namespaced_deployment('1',{'name':'ss','replicas':1,'labels':{},'annotations':{}},[{'image':'nginx', 'name':'test-pod', "imagePullPolicy":'Always'}]))
     # print(delete_namespaced_deployment('test1','default'))
-    with open('/home/werthy/Documents/basic_test.yml') as f:
-        data = yaml.safe_load(f.read())
-
-    w_name = data['deploy_infos']['name']
-    try:
-        data['deploy_infos']['labels']['k8s.webserver/name'] = w_name
-    except TypeError as err:
-        data['deploy_infos']['labels'] = {}
-        data['deploy_infos']['labels']['k8s.webserver/name'] = w_name        
-    try:
-        data['service_infos']['labels']['k8s.webserver/name'] = w_name
-    except KeyError:
-        data['service_infos']['labels'] = {}
-        data['service_infos']['labels']['k8s.webserver/name'] = w_name
-    
-    data['deploy_infos']['annotations']['k8s.webserver/workload'] = w_name
-    try:
-        data['service_infos']['annotations']['k8s.webserver/workload'] = w_name
-    except KeyError:
-        data['service_infos']['annotations'] = {}
-        data['service_infos']['annotations']['k8s.webserver/workload'] = w_name
-    # data['ingress_infos']['annotations']['k8s.webserver/workload'] = w_name
-    # data['ingress_infos']['labels']['k8s.webserver/workload'] = w_name
-   
-    # 名称处理
-    data['service_infos']['name'] = w_name
-    # data['ingress_infos']['name'] = w_name
-
-    # # dry_run 并得到结果（需要格式化，但还没测试）
-    # deploy_res = create_namespaced_deployment(data['namespace'],data['deploy_infos'],data['containers'],pod_infos=data['pod_infos'])
-    try:
-        service_res = create_namespaced_service(data['namespace'],data['service_infos'],True)
-        print(service_res)
-    except client.exceptions.ApiException as err:
-        print(format_create_failure(err))
-    # print(deploy_res)
+    # database_test(0,1)
